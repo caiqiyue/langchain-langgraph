@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c ':*)",
+      "Bash(python \"E:\\\\langchain_learning\\\\split_notebook.py\")",
+      "Bash(grep -n '```python' \"E:\\\\langchain_learning\\\\langchain_\\\\Part 1. LangChain v1.0 基础入门实战\\\\第三阶段、庖丁解模块.md\")",
+      "Bash(python \"E:\\\\langchain_learning\\\\split_notebook3.py\")",
+      "Bash(python \"E:\\\\langchain_learning\\\\split_notebook4.py\")",
+      "Bash(python \"E:\\\\langchain_learning\\\\split_notebook7.py\")",
+      "Bash(set PYTHONIOENCODING=utf-8)",
+      "Bash(python \"E:\\\\langchain_learning\\\\split_notebook8.py\")",
+      "Bash(python \"E:\\\\langchain_learning\\\\split_notebook10.py\")",
+      "Bash(python \"E:\\\\langchain_learning\\\\split_notebook11.py\")",
+      "Bash(python \"E:\\\\langchain_learning\\\\split_notebook13.py\")",
+      "Bash(python \"E:\\\\langchain_learning\\\\split_notebook14.py\")"
+    ]
+  }
+}

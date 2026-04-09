@@ -1,0 +1,51 @@
+# LangChain & LangGraph AI Agent 开发实战 - 环境依赖
+
+# Core Framework
+langchain>=0.3.0
+langchain-core>=0.3.0
+langchain-openai>=0.2.0
+langgraph>=0.2.0
+
+# Agent & Tool Integration
+langchain-agents
+langchain-experimental
+langchain-tavily
+langchain-mcp-adapters
+deepagents
+
+# Vector Store & RAG
+langchain-chroma
+langchain-milvus
+faiss-cpu
+rank-bm25
+
+# Database
+sqlalchemy
+psycopg-pool
+langgraph-checkpoint-postgres
+langgraph-checkpoint-sqlite
+
+# LLM Integration
+langchain-ollama
+langchain-deepseek
+
+# Middleware & UI
+gradio
+rich
+
+# Web & Scraping
+requests
+httpx
+bs4
+lxml
+scrapy
+playwright
+aiohttp
+regex
+
+# Utilities
+pydantic
+python-dotenv
+faker
+tiktoken
+ipython
