@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Breakpoint 断点工作原理</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 40px;
+        }
+        .container { max-width: 1000px; margin: 0 auto; }
+        h1 {
+            text-align: center;
+            color: #fff;
+            font-size: 32px;
+            margin-bottom: 40px;
+        }
+        .compile-params {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .compile-params h2 {
+            color: #667eea;
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+        .param-item {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+        }
+        .param-name {
+            color: #4facfe;
+            font-weight: bold;
+            font-size: 16px;
+            min-width: 150px;
+        }
+        .param-desc {
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+        }
+        .code-example {
+            background: rgba(0,0,0,0.4);
+            border-radius: 12px;
+            padding: 25px;
+            font-family: monospace;
+            font-size: 14px;
+            color: #4facfe;
+            line-height: 1.8;
+        }
+        .code-keyword { color: #f5576c; }
+        .code-string { color: #43e97b; }
+        .code-comment { color: rgba(255,255,255,0.4); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Breakpoint 断点工作原理</h1>
+        
+        <div class="compile-params">
+            <h2>compile() 方法核心参数</h2>
+            <div class="param-item">
+                <span class="param-name">checkpointer</span>
+                <span class="param-desc">接收任意类型的checkpointer，用于保存图的状态</span>
+            </div>
+            <div class="param-item">
+                <span class="param-name">interrupt_before</span>
+                <span class="param-desc">在指定节点之前中断图的运行</span>
+            </div>
+            <div class="param-item">
+                <span class="param-name">interrupt_after</span>
+                <span class="param-desc">在指定节点之后中断图的运行</span>
+            </div>
+        </div>
+        
+        <div class="code-example">
+<span class="code-comment"># 编译图时添加断点</span>
+memory = <span class="code-keyword">MemorySaver</span>()
+graph = builder.compile(
+    checkpointer=memory,
+    <span class="code-keyword">interrupt_before</span>=[<span class="code-string">"execute_users"</span>]
+)
+
+<span class="code-comment"># 查看当前状态</span>
+snapshot = graph.get_state(config)
+
+<span class="code-comment"># 更新状态（人工审批）</span>
+graph.update_state(config, {<span class="code-string">"user_approval"</span>: <span class="code-string">"是"</span>})
+
+<span class="code-comment"># 继续执行</span>
+async <span class="code-keyword">for</span> chunk <span class="code-keyword">in</span> graph.astream(<span class="code-keyword">None</span>, config):
+    print(chunk)
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentic RAG 系统架构 - 简洁现代</title>
+    <style>
+        /* ========================================
+           设计系统
+           主色：紫色系 (#7c3aed, #8b5cf6, #a78bfa)
+           风格：简洁现代、层次分明
+           ======================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 50px; }
+        h1 { color: #4c1d95; font-size: 38px; margin-bottom: 15px; }
+        .subtitle { color: #7c3aed; font-size: 18px; }
+
+        /* 系统架构图 */
+        .system-arch {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* 用户层 */
+        .layer {
+            background: white;
+            border-radius: 16px;
+            padding: 25px 30px;
+            box-shadow: 0 6px 25px rgba(0,0,0,0.08);
+        }
+        .layer-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .layer-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        .layer-icon.user { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+        .layer-icon.agent { background: linear-gradient(135deg, #ec4899, #db2777); }
+        .layer-icon.tool { background: linear-gradient(135deg, #10b981, #059669); }
+        .layer-icon.memory { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .layer-icon.llm { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+
+        .layer-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1c1917;
+        }
+        .layer-sub { font-size: 13px; color: #78716c; }
+
+        /* 用户输入 */
+        .user-input {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 20px;
+            background: #f5f3ff;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+        .input-icon { font-size: 28px; }
+        .input-text {
+            flex: 1;
+            font-size: 16px;
+            color: #4c1d95;
+            font-weight: 500;
+        }
+
+        /* Agent 内部 */
+        .agent-inner {
+            background: linear-gradient(135deg, #fdf2f8, #fce7f3);
+            border: 2px dashed #ec4899;
+            border-radius: 16px;
+            padding: 25px;
+        }
+        .agent-label {
+            text-align: center;
+            font-size: 14px;
+            color: #be185d;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding: 8px 16px;
+            background: #fce7f3;
+            border-radius: 20px;
+            display: inline-block;
+        }
+
+        .agent-components {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .agent-comp {
+            background: white;
+            border-radius: 12px;
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        }
+        .comp-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+        .comp-icon.rag { background: #dcfce7; }
+        .comp-icon.search { background: #dbeafe; }
+        .comp-icon.calc { background: #fef3c7; }
+        .comp-icon.doc { background: #fce7f3; }
+
+        .comp-name { font-size: 15px; font-weight: 600; color: #1c1917; }
+        .comp-type { font-size: 12px; color: #78716c; }
+
+        /* 工具调用流程 */
+        .tool-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            padding: 15px;
+            background: #f0fdf4;
+            border-radius: 12px;
+        }
+        .tool-item {
+            padding: 10px 18px;
+            background: white;
+            border-radius: 10px;
+            font-size: 14px;
+            color: #166534;
+            border: 2px solid #86efac;
+        }
+        .tool-arrow { color: #22c55e; font-size: 20px; }
+
+        /* 记忆层 */
+        .memory-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+        }
+        .memory-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px;
+            background: #fffbeb;
+            border-radius: 10px;
+            border-left: 4px solid #f59e0b;
+        }
+        .memory-icon { font-size: 20px; }
+        .memory-text { font-size: 14px; color: #92400e; }
+
+        /* 连接线 */
+        .connector {
+            text-align: center;
+            padding: 10px 0;
+            font-size: 28px;
+            color: #a78bfa;
+        }
+
+        /* 最终响应 */
+        .response-final {
+            background: linear-gradient(135deg, #7c3aed, #8b5cf6);
+            border-radius: 16px;
+            padding: 25px 30px;
+            color: white;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            box-shadow: 0 8px 30px rgba(124, 58, 237, 0.3);
+        }
+        .response-icon { font-size: 32px; }
+        .response-text { font-size: 18px; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Agentic RAG 系统架构</h1>
+            <p class="subtitle">用户 → Agent → 工具层 → 记忆 → 响应</p>
+        </header>
+
+        <div class="system-arch">
+            <!-- 用户层 -->
+            <div class="layer">
+                <div class="layer-header">
+                    <div class="layer-icon user">👤</div>
+                    <div>
+                        <div class="layer-title">用户层</div>
+                        <div class="layer-sub">User Interface</div>
+                    </div>
+                </div>
+                <div class="user-input">
+                    <span class="input-icon">💬</span>
+                    <span class="input-text">"帮我查找 2024 年诺贝尔物理学奖得主的相关信息"</span>
+                </div>
+            </div>
+
+            <div class="connector">⬇️</div>
+
+            <!-- Agent 层 -->
+            <div class="layer agent-inner">
+                <div style="text-align: center;">
+                    <span class="agent-label">🤖 AGENT CORE</span>
+                </div>
+                <div class="agent-components">
+                    <div class="agent-comp">
+                        <div class="comp-icon rag">📚</div>
+                        <div>
+                            <div class="comp-name">RAG Tool</div>
+                            <div class="comp-type">知识库检索</div>
+                        </div>
+                    </div>
+                    <div class="agent-comp">
+                        <div class="comp-icon search">🌐</div>
+                        <div>
+                            <div class="comp-name">Web Search</div>
+                            <div class="comp-type">网络搜索</div>
+                        </div>
+                    </div>
+                    <div class="agent-comp">
+                        <div class="comp-icon calc">🧮</div>
+                        <div>
+                            <div class="comp-name">Calculator</div>
+                            <div class="comp-type">计算工具</div>
+                        </div>
+                    </div>
+                    <div class="agent-comp">
+                        <div class="comp-icon doc">📄</div>
+                        <div>
+                            <div class="comp-name">Doc Reader</div>
+                            <div class="comp-type">文档读取</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="connector">⬇️</div>
+
+            <!-- 工具调用 -->
+            <div class="layer">
+                <div class="layer-header">
+                    <div class="layer-icon tool">🔧</div>
+                    <div>
+                        <div class="layer-title">工具层</div>
+                        <div class="layer-sub">Tool Ecosystem</div>
+                    </div>
+                </div>
+                <div class="tool-flow">
+                    <span class="tool-item">📚 TavilySearch</span>
+                    <span class="tool-arrow">→</span>
+                    <span class="tool-item">🔍 VectorStore</span>
+                    <span class="tool-arrow">→</span>
+                    <span class="tool-item">🌐 WebFetch</span>
+                </div>
+            </div>
+
+            <div class="connector">⬇️</div>
+
+            <!-- 记忆层 -->
+            <div class="layer">
+                <div class="layer-header">
+                    <div class="layer-icon memory">🧠</div>
+                    <div>
+                        <div class="layer-title">记忆层</div>
+                        <div class="layer-sub">Memory System</div>
+                    </div>
+                </div>
+                <div class="memory-items">
+                    <div class="memory-item">
+                        <span class="memory-icon">⚡</span>
+                        <span class="memory-text">短期记忆 (Checkpointer)</span>
+                    </div>
+                    <div class="memory-item">
+                        <span class="memory-icon">💾</span>
+                        <span class="memory-text">长期记忆 (VectorStore)</span>
+                    </div>
+                    <div class="memory-item">
+                        <span class="memory-icon">🔗</span>
+                        <span class="memory-text">跨会话记忆 (BaseStore)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="connector">⬇️</div>
+
+            <!-- LLM 生成 -->
+            <div class="layer">
+                <div class="layer-header">
+                    <div class="layer-icon llm">🤖</div>
+                    <div>
+                        <div class="layer-title">LLM 生成层</div>
+                        <div class="layer-sub">ChatDeepSeek / GPT-4</div>
+                    </div>
+                </div>
+                <div style="padding: 15px; background: #eff6ff; border-radius: 12px; color: #1e40af; font-size: 15px;">
+                    基于检索结果和对话上下文，生成最终回答
+                </div>
+            </div>
+
+            <div class="connector">⬇️</div>
+
+            <!-- 最终响应 -->
+            <div class="response-final">
+                <span class="response-icon">✅</span>
+                <span class="response-text">2024年诺贝尔物理学奖获得者是...</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

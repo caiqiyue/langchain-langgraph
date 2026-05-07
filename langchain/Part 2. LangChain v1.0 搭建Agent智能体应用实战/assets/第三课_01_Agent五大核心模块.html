@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent 五大核心模块</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+            min-height: 100vh;
+            padding: 40px;
+        }
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #6b21a8;
+            font-size: 36px;
+            margin-bottom: 50px;
+            font-weight: 600;
+        }
+        .modules-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 50px;
+            flex-wrap: wrap;
+        }
+        .module-box {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 6px 25px rgba(0,0,0,0.08);
+            text-align: center;
+            min-width: 160px;
+            flex: 1;
+            max-width: 200px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .module-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 35px rgba(0,0,0,0.12);
+        }
+        .module-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 28px;
+        }
+        .icon-perception { background: linear-gradient(135deg, #f472b6 0%, #db2777 100%); }
+        .icon-brain { background: linear-gradient(135deg, #818cf8 0%, #4f46e5 100%); }
+        .icon-memory { background: linear-gradient(135deg, #34d399 0%, #059669 100%); }
+        .icon-tools { background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%); }
+        .icon-action { background: linear-gradient(135deg, #fb7185 0%, #e11d48 100%); }
+        .module-title {
+            font-size: 18px;
+            color: #1e293b;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+        .module-subtitle {
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+        .module-desc {
+            font-size: 11px;
+            color: #475569;
+            line-height: 1.4;
+        }
+        .arrow-box {
+            color: #a78bfa;
+            font-size: 24px;
+        }
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 20px;
+        }
+        .detail-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .detail-card h4 {
+            color: #6b21a8;
+            font-size: 15px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .detail-card ul {
+            list-style: none;
+        }
+        .detail-card li {
+            color: #475569;
+            font-size: 12px;
+            padding: 5px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .detail-card li:last-child {
+            border-bottom: none;
+        }
+        @media (max-width: 1000px) {
+            .modules-flow { flex-direction: column; }
+            .arrow-box { transform: rotate(90deg); }
+            .detail-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧩 Agent 五大核心模块</h1>
+
+        <div class="modules-flow">
+            <div class="module-box">
+                <div class="module-icon icon-perception">👁️</div>
+                <div class="module-title">感知模块</div>
+                <div class="module-subtitle">Perception</div>
+                <div class="module-desc">接收输入<br>多模态支持</div>
+            </div>
+
+            <div class="arrow-box">→</div>
+
+            <div class="module-box">
+                <div class="module-icon icon-brain">🧠</div>
+                <div class="module-title">认知中枢</div>
+                <div class="module-subtitle">Brain</div>
+                <div class="module-desc">LLM 推理<br>规划决策</div>
+            </div>
+
+            <div class="arrow-box">→</div>
+
+            <div class="module-box">
+                <div class="module-icon icon-memory">💾</div>
+                <div class="module-title">记忆系统</div>
+                <div class="module-subtitle">Memory</div>
+                <div class="module-desc">短期+长期<br>上下文维持</div>
+            </div>
+
+            <div class="arrow-box">→</div>
+
+            <div class="module-box">
+                <div class="module-icon icon-tools">🔧</div>
+                <div class="module-title">工具生态</div>
+                <div class="module-subtitle">Tools</div>
+                <div class="module-desc">API调用<br>外部交互</div>
+            </div>
+
+            <div class="arrow-box">→</div>
+
+            <div class="module-box">
+                <div class="module-icon icon-action">⚡</div>
+                <div class="module-title">执行引擎</div>
+                <div class="module-subtitle">Action</div>
+                <div class="module-desc">任务执行<br>结果反馈</div>
+            </div>
+        </div>
+
+        <div class="detail-grid">
+            <div class="detail-card">
+                <h4>👁️ 感知模块</h4>
+                <ul>
+                    <li>接收用户消息</li>
+                    <li>接收工具返回</li>
+                    <li>系统指令</li>
+                    <li>多模态输入</li>
+                </ul>
+            </div>
+
+            <div class="detail-card">
+                <h4>🧠 认知中枢</h4>
+                <ul>
+                    <li>理解用户意图</li>
+                    <li>制定执行计划</li>
+                    <li>决策下一步</li>
+                    <li>整合结果输出</li>
+                </ul>
+            </div>
+
+            <div class="detail-card">
+                <h4>💾 记忆系统</h4>
+                <ul>
+                    <li>对话历史</li>
+                    <li>向量检索</li>
+                    <li>用户偏好</li>
+                    <li>跨会话持久化</li>
+                </ul>
+            </div>
+
+            <div class="detail-card">
+                <h4>🔧 工具生态</h4>
+                <ul>
+                    <li>搜索工具</li>
+                    <li>计算工具</li>
+                    <li>API工具</li>
+                    <li>自定义工具</li>
+                </ul>
+            </div>
+
+            <div class="detail-card">
+                <h4>⚡ 执行引擎</h4>
+                <ul>
+                    <li>工具调用</li>
+                    <li>异常处理</li>
+                    <li>结果反馈</li>
+                    <li>循环控制</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

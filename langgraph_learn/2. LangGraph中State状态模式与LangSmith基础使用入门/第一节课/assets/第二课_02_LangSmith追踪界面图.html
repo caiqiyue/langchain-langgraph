@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LangSmith追踪界面图</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 24px;
+        }
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .panel {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        .panel-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .panel-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        .icon-run { background: #667eea; color: white; }
+        .icon-node { background: #f093fb; color: white; }
+        .icon-token { background: #4facfe; color: white; }
+        .icon-time { background: #43e97b; color: white; }
+
+        .panel h3 {
+            color: #2c3e50;
+            font-size: 14px;
+        }
+        .panel-content {
+            color: #666;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        .metric:last-child {
+            border-bottom: none;
+        }
+        .metric-label {
+            color: #888;
+        }
+        .metric-value {
+            font-weight: bold;
+            color: #333;
+        }
+        .caption {
+            text-align: center;
+            color: #888;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+        @media (max-width: 600px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>LangSmith 追踪界面</h1>
+        <div class="dashboard">
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-icon icon-run">▶</div>
+                    <h3>Run Graph</h3>
+                </div>
+                <div class="panel-content">
+                    <div class="metric">
+                        <span class="metric-label">Run ID</span>
+                        <span class="metric-value">abc123...</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Status</span>
+                        <span class="metric-value" style="color: #43e97b;">✓ Success</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Start Time</span>
+                        <span class="metric-value">10:30:15</span>
+                    </div>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-icon icon-node">◇</div>
+                    <h3>Node: llm_node</h3>
+                </div>
+                <div class="panel-content">
+                    <div class="metric">
+                        <span class="metric-label">Input</span>
+                        <span class="metric-value">question</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Output</span>
+                        <span class="metric-value">answer</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Duration</span>
+                        <span class="metric-value">1.2s</span>
+                    </div>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-icon icon-token">#</div>
+                    <h3>Token Usage</h3>
+                </div>
+                <div class="panel-content">
+                    <div class="metric">
+                        <span class="metric-label">Prompt</span>
+                        <span class="metric-value">25 tokens</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Completion</span>
+                        <span class="metric-value">48 tokens</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Total</span>
+                        <span class="metric-value">73 tokens</span>
+                    </div>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-icon icon-time">⏱</div>
+                    <h3>Performance</h3>
+                </div>
+                <div class="panel-content">
+                    <div class="metric">
+                        <span class="metric-label">Total Latency</span>
+                        <span class="metric-value">1.35s</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Time to First</span>
+                        <span class="metric-value">0.8s</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Throughput</span>
+                        <span class="metric-value">54 t/s</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="caption">LangSmith Dashboard 展示完整的追踪和性能信息</div>
+    </div>
+</body>
+</html>

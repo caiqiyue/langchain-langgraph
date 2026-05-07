@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentic RAG 系统架构 - 深色科技</title>
+    <style>
+        /* ========================================
+           设计系统
+           主色：深色科技 (#0f172a, #1e293b, #7c3aed)
+           风格：深色主题、霓虹边框
+           ======================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", "Consolas", monospace;
+            background: #0f172a;
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: #e2e8f0;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 50px; }
+        h1 {
+            color: #f8fafc;
+            font-size: 42px;
+            text-shadow: 0 0 40px rgba(124, 58, 237, 0.6);
+            margin-bottom: 15px;
+        }
+        .subtitle { color: #a78bfa; font-size: 18px; font-family: "Consolas", monospace; }
+
+        /* 系统架构 */
+        .tech-arch {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .tech-layer {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 25px;
+            border: 1px solid #334155;
+            position: relative;
+        }
+        .tech-layer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            border-radius: 4px 0 0 4px;
+        }
+        .tech-layer:nth-child(1)::before { background: #8b5cf6; }
+        .tech-layer:nth-child(2)::before { background: #ec4899; }
+        .tech-layer:nth-child(3)::before { background: #10b981; }
+        .tech-layer:nth-child(4)::before { background: #f59e0b; }
+        .tech-layer:nth-child(5)::before { background: #3b82f6; }
+
+        .tech-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 18px;
+        }
+        .tech-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        .tech-icon.purple { background: linear-gradient(135deg, #7c3aed, #6d28d9); box-shadow: 0 0 20px rgba(124, 58, 237, 0.4); }
+        .tech-icon.pink { background: linear-gradient(135deg, #ec4899, #db2777); box-shadow: 0 0 20px rgba(236, 72, 153, 0.4); }
+        .tech-icon.green { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 0 20px rgba(16, 185, 129, 0.4); }
+        .tech-icon.orange { background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: 0 0 20px rgba(245, 158, 11, 0.4); }
+        .tech-icon.blue { background: linear-gradient(135deg, #3b82f6, #1d4ed8); box-shadow: 0 0 20px rgba(59, 130, 246, 0.4); }
+
+        .tech-title { font-size: 18px; font-weight: 700; color: #f8fafc; }
+        .tech-sub { font-size: 12px; color: #64748b; font-family: "Consolas", monospace; }
+
+        /* 用户输入 */
+        .user-query {
+            background: #0f172a;
+            border-radius: 10px;
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border: 1px solid #334155;
+        }
+        .query-prompt {
+            color: #a78bfa;
+            font-size: 14px;
+        }
+        .query-text {
+            color: #e2e8f0;
+            font-size: 15px;
+            flex: 1;
+        }
+
+        /* Agent 核心 - 虚线框 */
+        .agent-core {
+            background: linear-gradient(135deg, #1e1b4b 0%, #2e1065 100%);
+            border: 2px dashed #8b5cf6;
+            border-radius: 16px;
+            padding: 25px;
+        }
+        .core-label {
+            text-align: center;
+            font-size: 13px;
+            color: #c4b5fd;
+            font-weight: 600;
+            margin-bottom: 18px;
+            font-family: "Consolas", monospace;
+        }
+        .core-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+        }
+        .core-item {
+            background: #0f172a;
+            border-radius: 10px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid #334155;
+            transition: all 0.3s ease;
+        }
+        .core-item:hover { border-color: #8b5cf6; }
+        .core-icon { font-size: 20px; }
+        .core-name { font-size: 14px; font-weight: 600; color: #e2e8f0; }
+        .core-type { font-size: 11px; color: #64748b; }
+
+        /* 工具流 */
+        .tool-stream {
+            background: #0f172a;
+            border-radius: 10px;
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            border: 1px solid #334155;
+        }
+        .tool-node {
+            padding: 10px 16px;
+            background: #1e293b;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #10b981;
+            border: 1px solid #10b981;
+            font-family: "Consolas", monospace;
+        }
+        .tool-join { color: #475569; font-size: 18px; }
+
+        /* 记忆条 */
+        .memory-bar {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .memory-chip {
+            flex: 1;
+            min-width: 150px;
+            background: #0f172a;
+            border-radius: 10px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid #334155;
+        }
+        .chip-icon { font-size: 18px; }
+        .chip-text { font-size: 13px; color: #e2e8f0; }
+
+        /* 最终输出 */
+        .output-final {
+            background: linear-gradient(135deg, #4c1d95, #6d28d9);
+            border-radius: 14px;
+            padding: 25px 30px;
+            color: white;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            box-shadow: 0 0 30px rgba(124, 58, 237, 0.4);
+        }
+        .output-icon { font-size: 30px; }
+        .output-text { font-size: 17px; font-weight: 600; font-family: "Consolas", monospace; }
+
+        /* 连接箭头 */
+        .arrow-down {
+            text-align: center;
+            font-size: 24px;
+            color: #475569;
+            padding: 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>AGENTIC RAG SYSTEM</h1>
+            <p class="subtitle">User → Agent → Tools → Memory → Response</p>
+        </header>
+
+        <div class="tech-arch">
+            <!-- 用户层 -->
+            <div class="tech-layer">
+                <div class="tech-header">
+                    <div class="tech-icon purple">👤</div>
+                    <div>
+                        <div class="tech-title">USER LAYER</div>
+                        <div class="tech-sub">// Input Layer</div>
+                    </div>
+                </div>
+                <div class="user-query">
+                    <span class="query-prompt">Query:</span>
+                    <span class="query-text">"2024年诺贝尔物理学奖得主是谁？"</span>
+                </div>
+            </div>
+
+            <div class="arrow-down">▼</div>
+
+            <!-- Agent 核心 -->
+            <div class="tech-layer">
+                <div class="agent-core">
+                    <div class="core-label">// AGENT CORE - Decision Engine</div>
+                    <div class="core-grid">
+                        <div class="core-item">
+                            <span class="core-icon">📚</span>
+                            <div>
+                                <div class="core-name">RAG Tool</div>
+                                <div class="core-type">Knowledge Retrieval</div>
+                            </div>
+                        </div>
+                        <div class="core-item">
+                            <span class="core-icon">🌐</span>
+                            <div>
+                                <div class="core-name">Tavily Search</div>
+                                <div class="core-type">Web Search</div>
+                            </div>
+                        </div>
+                        <div class="core-item">
+                            <span class="core-icon">🧮</span>
+                            <div>
+                                <div class="core-name">Calculator</div>
+                                <div class="core-type">Math Tool</div>
+                            </div>
+                        </div>
+                        <div class="core-item">
+                            <span class="core-icon">📄</span>
+                            <div>
+                                <div class="core-name">Doc Reader</div>
+                                <div class="core-type">File Access</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="arrow-down">▼</div>
+
+            <!-- 工具层 -->
+            <div class="tech-layer">
+                <div class="tech-header">
+                    <div class="tech-icon green">🔧</div>
+                    <div>
+                        <div class="tech-title">TOOL ECOSYSTEM</div>
+                        <div class="tech-sub">// Execution Layer</div>
+                    </div>
+                </div>
+                <div class="tool-stream">
+                    <span class="tool-node">TavilySearch</span>
+                    <span class="tool-join">+</span>
+                    <span class="tool-node">VectorStore</span>
+                    <span class="tool-join">+</span>
+                    <span class="tool-node">WebFetch</span>
+                </div>
+            </div>
+
+            <div class="arrow-down">▼</div>
+
+            <!-- 记忆层 -->
+            <div class="tech-layer">
+                <div class="tech-header">
+                    <div class="tech-icon orange">🧠</div>
+                    <div>
+                        <div class="tech-title">MEMORY SYSTEM</div>
+                        <div class="tech-sub">// State Management</div>
+                    </div>
+                </div>
+                <div class="memory-bar">
+                    <div class="memory-chip">
+                        <span class="chip-icon">⚡</span>
+                        <span class="chip-text">Short-term (Checkpointer)</span>
+                    </div>
+                    <div class="memory-chip">
+                        <span class="chip-icon">💾</span>
+                        <span class="chip-text">Long-term (VectorStore)</span>
+                    </div>
+                    <div class="memory-chip">
+                        <span class="chip-icon">🔗</span>
+                        <span class="chip-text">Cross-session (BaseStore)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="arrow-down">▼</div>
+
+            <!-- LLM 层 -->
+            <div class="tech-layer">
+                <div class="tech-header">
+                    <div class="tech-icon blue">🤖</div>
+                    <div>
+                        <div class="tech-title">LLM GENERATION</div>
+                        <div class="tech-sub">// DeepSeek / GPT-4</div>
+                    </div>
+                </div>
+                <div style="padding: 15px; background: #0f172a; border-radius: 10px; color: #60a5fa; font-size: 14px; font-family: Consolas, monospace;">
+                    context + retrieved_docs → generate_response()
+                </div>
+            </div>
+
+            <div class="arrow-down">▼</div>
+
+            <!-- 最终响应 -->
+            <div class="output-final">
+                <span class="output-icon">✅</span>
+                <span class="output-text">2024年诺贝尔物理学奖获得者是...</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LangChain RAG 架构图 - 活力清新</title>
+    <style>
+        /* ========================================
+           设计系统
+           主色：彩虹糖果色系
+           风格：活力清新、圆胖可爱、现代卡片
+           ======================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #fefce8;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+            background: linear-gradient(135deg, #fef9c3, #d9f99d);
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        }
+        h1 {
+            background: linear-gradient(135deg, #15803d, #0d9488);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        .subtitle {
+            color: #65a30d;
+            font-size: 20px;
+        }
+
+        /* 横向大流程 */
+        .candy-pipeline {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 50px;
+        }
+        .candy-stage {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+        .candy-bubble {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 42px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: pointer;
+        }
+        .candy-bubble:hover {
+            transform: scale(1.1) translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+        .candy-bubble.green { background: linear-gradient(135deg, #86efac, #22c55e); }
+        .candy-bubble.blue { background: linear-gradient(135deg, #93c5fd, #3b82f6); }
+        .candy-bubble.purple { background: linear-gradient(135deg, #c4b5fd, #8b5cf6); }
+        .candy-bubble.orange { background: linear-gradient(135deg, #fed7aa, #f59e0b); }
+        .candy-bubble.teal { background: linear-gradient(135deg, #5eead4, #14b8a6); }
+        .candy-bubble.red { background: linear-gradient(135deg, #fca5a5, #ef4444); }
+
+        .candy-num {
+            font-size: 14px;
+            font-weight: 700;
+            opacity: 0.7;
+            margin-bottom: 2px;
+        }
+        .candy-icon { margin-bottom: 5px; }
+        .candy-label {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1c1917;
+        }
+
+        /* 糖果箭头 */
+        .candy-arrow {
+            font-size: 32px;
+            color: #d4d4d4;
+            animation: bounce 1.5s ease-in-out infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        /* 卡片网格 */
+        .candy-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+        .candy-card {
+            background: white;
+            border-radius: 24px;
+            padding: 28px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+        }
+        .candy-card:hover {
+            transform: translateY(-5px);
+            border-color: #86efac;
+        }
+        .candy-card-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        .candy-card h3 {
+            font-size: 18px;
+            color: #1c1917;
+            margin-bottom: 10px;
+        }
+        .candy-card p {
+            font-size: 14px;
+            color: #78716c;
+            line-height: 1.6;
+        }
+        .candy-pill {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 15px;
+        }
+        .candy-pill.green { background: #dcfce7; color: #15803d; }
+        .candy-pill.blue { background: #dbeafe; color: #1d4ed8; }
+        .candy-pill.purple { background: #ede9fe; color: #6d28d9; }
+
+        /* 装饰 */
+        .candy-deco {
+            position: fixed;
+            border-radius: 50%;
+            opacity: 0.5;
+            z-index: -1;
+        }
+        .candy-deco-1 {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, #fef9c3, #d9f99d);
+            top: -100px;
+            right: -100px;
+        }
+        .candy-deco-2 {
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, #fce7f3, #fbcfe8);
+            bottom: 10%;
+            left: -50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="candy-deco candy-deco-1"></div>
+    <div class="candy-deco candy-deco-2"></div>
+
+    <div class="container">
+        <header>
+            <h1>LangChain RAG 完整架构</h1>
+            <p class="subtitle">六步构建智能问答系统</p>
+        </header>
+
+        <div class="candy-pipeline">
+            <div class="candy-stage">
+                <div class="candy-bubble green">
+                    <span class="candy-num">STEP 1</span>
+                    <span class="candy-icon">📄</span>
+                </div>
+                <span class="candy-label">文档加载</span>
+            </div>
+            <span class="candy-arrow">→</span>
+            <div class="candy-stage">
+                <div class="candy-bubble blue">
+                    <span class="candy-num">STEP 2</span>
+                    <span class="candy-icon">✂️</span>
+                </div>
+                <span class="candy-label">文档切分</span>
+            </div>
+            <span class="candy-arrow">→</span>
+            <div class="candy-stage">
+                <div class="candy-bubble purple">
+                    <span class="candy-num">STEP 3</span>
+                    <span class="candy-icon">🔢</span>
+                </div>
+                <span class="candy-label">向量化</span>
+            </div>
+            <span class="candy-arrow">→</span>
+            <div class="candy-stage">
+                <div class="candy-bubble orange">
+                    <span class="candy-num">STEP 4</span>
+                    <span class="candy-icon">🗄️</span>
+                </div>
+                <span class="candy-label">向量存储</span>
+            </div>
+            <span class="candy-arrow">→</span>
+            <div class="candy-stage">
+                <div class="candy-bubble teal">
+                    <span class="candy-num">STEP 5</span>
+                    <span class="candy-icon">🔍</span>
+                </div>
+                <span class="candy-label">相似检索</span>
+            </div>
+            <span class="candy-arrow">→</span>
+            <div class="candy-stage">
+                <div class="candy-bubble red">
+                    <span class="candy-num">STEP 6</span>
+                    <span class="candy-icon">🤖</span>
+                </div>
+                <span class="candy-label">LLM 生成</span>
+            </div>
+        </div>
+
+        <div class="candy-cards">
+            <div class="candy-card">
+                <div class="candy-card-icon">📚</div>
+                <h3>DocumentLoader</h3>
+                <p>支持 PDF、Word、TXT、HTML、Markdown 等多种格式文档加载</p>
+                <span class="candy-pill green">数据接入</span>
+            </div>
+            <div class="candy-card">
+                <div class="candy-card-icon">✂️</div>
+                <h3>TextSplitter</h3>
+                <p>RecursiveCharacterTextSplitter 智能切分，保持语义完整</p>
+                <span class="candy-pill blue">文本处理</span>
+            </div>
+            <div class="candy-card">
+                <div class="candy-card-icon">🧮</div>
+                <h3>Embeddings</h3>
+                <p>OpenAI、Cohere、BGE 等多种嵌入模型支持</p>
+                <span class="candy-pill purple">向量化</span>
+            </div>
+            <div class="candy-card">
+                <div class="candy-card-icon">💾</div>
+                <h3>VectorStore</h3>
+                <p>FAISS、Chroma、Pinecone 等向量数据库</p>
+                <span class="candy-pill green">存储</span>
+            </div>
+            <div class="candy-card">
+                <div class="candy-card-icon">🔎</div>
+                <h3>RetrievalQA</h3>
+                <p>RAG 链式调用，整合检索与生成流程</p>
+                <span class="candy-pill blue">问答链</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

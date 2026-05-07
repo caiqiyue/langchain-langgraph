@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent 概念图</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+            padding: 40px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #1e293b;
+            font-size: 36px;
+            margin-bottom: 50px;
+            font-weight: 600;
+        }
+        .concept-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 60px;
+            flex-wrap: wrap;
+        }
+        .concept-box {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            text-align: center;
+            min-width: 200px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .concept-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+        }
+        .concept-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 36px;
+        }
+        .icon-llm { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .icon-tools { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .icon-loop { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .concept-title {
+            font-size: 24px;
+            color: #1e293b;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        .concept-subtitle {
+            font-size: 14px;
+            color: #64748b;
+        }
+        .arrow {
+            font-size: 40px;
+            color: #94a3b8;
+        }
+        .plus {
+            font-size: 48px;
+            color: #cbd5e1;
+            font-weight: bold;
+        }
+        .equals {
+            font-size: 48px;
+            color: #475569;
+            font-weight: bold;
+        }
+        .result-box {
+            background: linear-gradient(135deg, #475569 0%, #334155 100%);
+            border-radius: 20px;
+            padding: 40px 60px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            text-align: center;
+        }
+        .result-box .concept-title {
+            color: white;
+            font-size: 28px;
+        }
+        .result-box .concept-subtitle {
+            color: #cbd5e1;
+        }
+        .explanation {
+            background: white;
+            border-radius: 16px;
+            padding: 30px 40px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            margin-top: 40px;
+        }
+        .explanation h3 {
+            color: #1e293b;
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+        .explanation-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+        .explanation-item {
+            text-align: center;
+        }
+        .explanation-item h4 {
+            color: #475569;
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+        .explanation-item p {
+            color: #64748b;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        @media (max-width: 900px) {
+            .concept-flow { flex-direction: column; }
+            .explanation-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 Agent 核心概念</h1>
+
+        <div class="concept-flow">
+            <div class="concept-box">
+                <div class="concept-icon icon-llm">🧠</div>
+                <div class="concept-title">LLM</div>
+                <div class="concept-subtitle">大模型 = 大脑/项目经理</div>
+                <p style="color:#64748b;font-size:13px;margin-top:10px;">思考、规划、决策</p>
+            </div>
+
+            <span class="plus">+</span>
+
+            <div class="concept-box">
+                <div class="concept-icon icon-tools">🔧</div>
+                <div class="concept-title">Tools</div>
+                <div class="concept-subtitle">工具 = 手脚/执行专员</div>
+                <p style="color:#64748b;font-size:13px;margin-top:10px;">搜索、计算、数据库</p>
+            </div>
+
+            <span class="plus">+</span>
+
+            <div class="concept-box">
+                <div class="concept-icon icon-loop">🔄</div>
+                <div class="concept-title">循环机制</div>
+                <div class="concept-subtitle">思考-行动-观察</div>
+                <p style="color:#64748b;font-size:13px;margin-top:10px;">自主决策闭环</p>
+            </div>
+
+            <span class="equals">=</span>
+
+            <div class="result-box">
+                <div class="concept-icon" style="background:rgba(255,255,255,0.2);">🤖</div>
+                <div class="concept-title">Agent</div>
+                <div class="concept-subtitle">智能体</div>
+            </div>
+        </div>
+
+        <div class="explanation">
+            <h3>📚 概念解析</h3>
+            <div class="explanation-grid">
+                <div class="explanation-item">
+                    <h4>🧠 LLM = 大脑</h4>
+                    <p>大语言模型负责思考和推理，决定下一步做什么，但不能直接执行操作</p>
+                </div>
+                <div class="explanation-item">
+                    <h4>🔧 Tools = 手脚</h4>
+                    <p>工具扩展了Agent的能力边界，让它可以搜索信息、执行计算、操作数据库</p>
+                </div>
+                <div class="explanation-item">
+                    <h4>🔄 循环机制</h4>
+                    <p>通过"思考-行动-观察"的循环，Agent不断接近目标，直到任务完成</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

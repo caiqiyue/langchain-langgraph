@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LangChain 1.0 生态概览</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+            min-height: 100vh;
+            padding: 40px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #1a1a2e;
+            font-size: 42px;
+            margin-bottom: 50px;
+            font-weight: 600;
+        }
+        .ecosystem-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        .module-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .module-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+        .module-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+        .icon-models { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .icon-tools { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .icon-memory { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .icon-agents { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .icon-workflows { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+        .icon-debug { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); }
+        .module-title {
+            font-size: 22px;
+            color: #1a1a2e;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        .module-subtitle {
+            font-size: 14px;
+            color: #667eea;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        .module-desc {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.7;
+        }
+        .feature-list {
+            list-style: none;
+            margin-top: 15px;
+        }
+        .feature-list li {
+            font-size: 13px;
+            color: #555;
+            padding: 6px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .feature-list li:last-child { border-bottom: none; }
+        .core-value {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 35px;
+            border-radius: 16px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .core-value h2 {
+            font-size: 26px;
+            margin-bottom: 15px;
+        }
+        .core-value p {
+            font-size: 16px;
+            opacity: 0.95;
+            line-height: 1.8;
+        }
+        .highlight {
+            background: linear-gradient(transparent 60%, #fef08a 60%);
+            padding: 0 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>LangChain 1.0 生态概览</h1>
+
+        <div class="ecosystem-grid">
+            <div class="module-card">
+                <div class="module-icon icon-models">🧠</div>
+                <div class="module-title">模型层 Models</div>
+                <div class="module-subtitle">统一模型抽象层</div>
+                <div class="module-desc">为所有模型提供标准化调用，覆盖文本、多模态、Embedding 等多类型模型</div>
+                <ul class="feature-list">
+                    <li>✅ 统一抽象：init_chat_model() 适配20+模型厂商</li>
+                    <li>✅ 异步/流式/批处理：ainvoke()，stream(), batch()</li>
+                    <li>✅ 扩展能力：with_structured_output()、Tool Calling</li>
+                </ul>
+            </div>
+
+            <div class="module-card">
+                <div class="module-icon icon-tools">🔧</div>
+                <div class="module-title">工具层 Tools</div>
+                <div class="module-subtitle">可执行 Agent 环境的关键能力层</div>
+                <div class="module-desc">工具系统提供统一 Tool 抽象，支持所有主流模型的 Tool Calling</div>
+                <ul class="feature-list">
+                    <li>✅ 内置工具：搜索、计算、代码执行等100+工具</li>
+                    <li>✅ 自定义工具：@tool装饰器 / BaseTool / ToolNode</li>
+                    <li>✅ 工具包：Toolkit（如GitHub、Slack集成）</li>
+                </ul>
+            </div>
+
+            <div class="module-card">
+                <div class="module-icon icon-memory">💾</div>
+                <div class="module-title">记忆层 Memory</div>
+                <div class="module-subtitle">统一 State 管理</div>
+                <div class="module-desc">提供对话记录、长期检索、多模态 Memory 等能力，支持持久化</div>
+                <ul class="feature-list">
+                    <li>✅ 短期记忆：消息历史自动管理</li>
+                    <li>✅ 长期记忆：向量数据库存储（Chroma, Pinecone）</li>
+                    <li>✅ 存储接口：Store（跨会话持久化）</li>
+                </ul>
+            </div>
+
+            <div class="module-card">
+                <div class="module-icon icon-agents">🤖</div>
+                <div class="module-title">Agent层 Agents</div>
+                <div class="module-subtitle">create_agent 核心接口</div>
+                <div class="module-desc">以create_agent为核心接口，基于LangGraph构建统一Agent抽象</div>
+                <ul class="feature-list">
+                    <li>✅ 核心API：create_agent()</li>
+                    <li>✅ 执行引擎：LangGraph Runtime</li>
+                    <li>✅ 中间件：Middleware（HITL、压缩、路由）</li>
+                </ul>
+            </div>
+
+            <div class="module-card">
+                <div class="module-icon icon-workflows">🔄</div>
+                <div class="module-title">工作流层 Workflows</div>
+                <div class="module-subtitle">图结构编排</div>
+                <div class="module-desc">以 StateGraph 为核心画布，将业务逻辑解耦为"节点+边+状态"</div>
+                <ul class="feature-list">
+                    <li>✅ 简单链：Chain（快速串联）</li>
+                    <li>✅ 复杂图：LangGraph（条件分支、循环）</li>
+                    <li>✅ 模板库：LangChain Hub（共享Agent模板）</li>
+                </ul>
+            </div>
+
+            <div class="module-card">
+                <div class="module-icon icon-debug">🔍</div>
+                <div class="module-title">调试监控层 Debugging</div>
+                <div class="module-subtitle">全链路可观测性</div>
+                <div class="module-desc">深度集成 LangSmith 平台，自动捕获链与图的每一步状态</div>
+                <ul class="feature-list">
+                    <li>✅ 本地日志：verbose=True</li>
+                    <li>✅ 云端平台：LangSmith（可视化链路追踪）</li>
+                    <li>✅ 评估工具：LangChain Evaluate</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="core-value">
+            <h2>💡 核心价值</h2>
+            <p>让开发者用<span class="highlight">10行代码</span>完成原本需要<span class="highlight">1000行代码</span>的AI应用，并且自动获得<span class="highlight">状态持久化、人工干预、并发控制</span>等企业级能力。</p>
+        </div>
+    </div>
+</body>
+</html>

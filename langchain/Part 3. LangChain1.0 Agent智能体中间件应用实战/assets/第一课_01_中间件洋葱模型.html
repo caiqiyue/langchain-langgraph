@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中间件六大Hook点</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            min-height: 100vh;
+            padding: 40px;
+        }
+        .container { max-width: 1100px; margin: 0 auto; }
+        h1 { text-align: center; color: #0369a1; font-size: 36px; margin-bottom: 40px; }
+        .hooks-flow { display: flex; flex-direction: column; gap: 20px; }
+        .hook-row { display: flex; align-items: center; gap: 15px; justify-content: center; }
+        .hook-box {
+            background: white;
+            border-radius: 12px;
+            padding: 15px 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            text-align: center;
+            min-width: 200px;
+        }
+        .hook-box.before { border-left: 4px solid #3b82f6; }
+        .hook-box.wrap { border-left: 4px solid #8b5cf6; }
+        .hook-box.after { border-left: 4px solid #22c55e; }
+        .hook-name { font-size: 18px; color: #1e293b; font-weight: 600; }
+        .hook-desc { font-size: 12px; color: #64748b; margin-top: 4px; }
+        .arrow { color: #94a3b8; font-size: 24px; }
+        .flow-label { text-align: center; color: #0369a1; font-size: 14px; margin: 15px 0; }
+        .table-section { background: white; border-radius: 16px; padding: 30px; margin-top: 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+        .table-section h3 { color: #0369a1; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+        th { color: #0369a1; font-weight: 600; background: #f8fafc; }
+        td { color: #475569; font-size: 13px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 中间件六大 Hook 点</h1>
+        <div class="hooks-flow">
+            <div class="flow-label">执行顺序（从外到内）↓</div>
+            <div class="hook-row">
+                <div class="hook-box before"><div class="hook-name">before_agent</div><div class="hook-desc">Agent 执行前最后机会修改输入</div></div>
+                <span class="arrow">→</span>
+                <div class="hook-box before"><div class="hook-name">before_model</div><div class="hook-desc">模型调用前修改 prompt</div></div>
+            </div>
+            <div class="hook-row">
+                <div class="hook-box wrap"><div class="hook-name">wrap_model_call</div><div class="hook-desc">包裹模型调用</div></div>
+                <span class="arrow">→</span>
+                <div class="hook-box wrap"><div class="hook-name">wrap_tool_call</div><div class="hook-desc">包裹工具调用</div></div>
+            </div>
+            <div class="hook-row">
+                <div class="hook-box after"><div class="hook-name">after_model</div><div class="hook-desc">模型调用后修改输出</div></div>
+                <span class="arrow">→</span>
+                <div class="hook-box after"><div class="hook-name">after_agent</div><div class="hook-desc">Agent 执行完成后的最终处理</div></div>
+            </div>
+            <div class="flow-label">返回顺序（从内到外）↑</div>
+        </div>
+        <div class="table-section">
+            <h3>📋 Hook 点详解</h3>
+            <table>
+                <tr><th>Hook 点</th><th>作用</th><th>常见中间件</th></tr>
+                <tr><td>before_agent</td><td>Agent 执行前最后机会修改输入</td><td>安全检查、权限验证</td></tr>
+                <tr><td>before_model</td><td>模型调用前修改 prompt / 选择模型</td><td>SummarizationMiddleware、PIIMiddleware</td></tr>
+                <tr><td>wrap_model_call</td><td>包裹模型调用（异常处理、重试）</td><td>ModelFallbackMiddleware</td></tr>
+                <tr><td>wrap_tool_call</td><td>包裹工具调用（异常处理、重试）</td><td>ToolRetryMiddleware</td></tr>
+                <tr><td>after_model</td><td>模型调用后修改输出</td><td>HumanInTheLoopMiddleware</td></tr>
+                <tr><td>after_agent</td><td>Agent 执行完成后的最终处理</td><td>日志记录、审计追踪</td></tr>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

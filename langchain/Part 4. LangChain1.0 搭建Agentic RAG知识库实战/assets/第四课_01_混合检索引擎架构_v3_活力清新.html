@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>混合检索引擎架构 - 活力清新</title>
+    <style>
+        /* ========================================
+           设计系统
+           主色：马卡龙彩色
+           风格：活力清新、圆润可爱
+           ======================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #fef3c7;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+            background: linear-gradient(135deg, #fef3c7, #fde68a, #fcd34d);
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 0 10px 40px rgba(245, 158, 11, 0.2);
+        }
+        h1 {
+            background: linear-gradient(135deg, #b45309, #d97706);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 44px;
+            margin-bottom: 15px;
+        }
+        .subtitle { color: #b45309; font-size: 20px; }
+
+        /* 双轨卡片 */
+        .dual-tracks {
+            display: flex;
+            gap: 25px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .track-card {
+            flex: 1;
+            min-width: 280px;
+            background: white;
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .track-card:hover { transform: translateY(-5px); }
+
+        .track-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .track-bubble {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+        .track-bubble.orange { background: linear-gradient(135deg, #fed7aa, #fb923c); }
+        .track-bubble.blue { background: linear-gradient(135deg, #bae6fd, #38bdf8); }
+
+        .track-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1c1917;
+        }
+        .track-sub { font-size: 14px; color: #78716c; }
+
+        .track-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .cute-step {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            border-radius: 16px;
+            font-size: 15px;
+            color: #1c1917;
+        }
+        .cute-step.orange { background: #fff7ed; }
+        .cute-step.blue { background: #f0f9ff; }
+        .cute-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 700;
+            color: white;
+        }
+        .cute-step.orange .cute-num { background: #f97316; }
+        .cute-step.blue .cute-num { background: #0ea5e9; }
+
+        /* 融合气泡 */
+        .fusion-bubble {
+            background: linear-gradient(135deg, #fde68a, #f59e0b);
+            border-radius: 25px;
+            padding: 30px 40px;
+            text-align: center;
+            box-shadow: 0 10px 35px rgba(245, 158, 11, 0.3);
+            margin-bottom: 30px;
+        }
+        .fusion-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #78350f;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        .fusion-icons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .mini-icon {
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .fusion-formula {
+            background: white;
+            border-radius: 15px;
+            padding: 15px 30px;
+            font-family: "Consolas", monospace;
+            font-size: 18px;
+            color: #92400e;
+            display: inline-block;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        /* 重排结果 */
+        .rerank-bubble {
+            background: white;
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .rerank-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1c1917;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .result-badges {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .result-badge {
+            padding: 12px 20px;
+            border-radius: 20px;
+            font-size: 15px;
+            font-weight: 600;
+        }
+        .result-badge.gold {
+            background: linear-gradient(135deg, #fef3c7, #f59e0b);
+            color: #78350f;
+            border: 3px solid #f59e0b;
+        }
+        .result-badge.green {
+            background: #dcfce7;
+            color: #15803d;
+        }
+        .result-badge.blue {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+        .result-badge.gray {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        /* 最终输出 */
+        .final-candy {
+            background: linear-gradient(135deg, #15803d, #16a34a);
+            border-radius: 25px;
+            padding: 28px 40px;
+            color: white;
+            text-align: center;
+            margin-top: 30px;
+            box-shadow: 0 10px 35px rgba(21, 128, 61, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        .final-icon { font-size: 36px; }
+        .final-text { font-size: 22px; font-weight: 700; }
+
+        /* 装饰 */
+        .deco {
+            position: fixed;
+            border-radius: 50%;
+            opacity: 0.4;
+            z-index: -1;
+        }
+        .deco-1 { width: 250px; height: 250px; background: #fef3c7; top: -80px; left: -80px; }
+        .deco-2 { width: 180px; height: 180px; background: #fce7f3; bottom: 5%; right: -50px; }
+    </style>
+</head>
+<body>
+    <div class="deco deco-1"></div>
+    <div class="deco deco-2"></div>
+
+    <div class="container">
+        <header>
+            <h1>混合检索引擎架构</h1>
+            <p class="subtitle">双轨并行 · 智能融合</p>
+        </header>
+
+        <div class="dual-tracks">
+            <div class="track-card">
+                <div class="track-header">
+                    <div class="track-bubble orange">📝</div>
+                    <div>
+                        <div class="track-title">BM25 检索</div>
+                        <div class="track-sub">关键词精准匹配</div>
+                    </div>
+                </div>
+                <div class="track-steps">
+                    <div class="cute-step orange">
+                        <span class="cute-num">1</span>
+                        <span>Query 分词处理</span>
+                    </div>
+                    <div class="cute-step orange">
+                        <span class="cute-num">2</span>
+                        <span>计算 IDF 权重</span>
+                    </div>
+                    <div class="cute-step orange">
+                        <span class="cute-num">3</span>
+                        <span>BM25 打分排序</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="track-card">
+                <div class="track-header">
+                    <div class="track-bubble blue">🔢</div>
+                    <div>
+                        <div class="track-title">向量检索</div>
+                        <div class="track-sub">语义相似度匹配</div>
+                    </div>
+                </div>
+                <div class="track-steps">
+                    <div class="cute-step blue">
+                        <span class="cute-num">1</span>
+                        <span>Query 向量化</span>
+                    </div>
+                    <div class="cute-step blue">
+                        <span class="cute-num">2</span>
+                        <span>ANN 近似搜索</span>
+                    </div>
+                    <div class="cute-step blue">
+                        <span class="cute-num">3</span>
+                        <span>Top-K 候选选取</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="fusion-bubble">
+            <div class="fusion-title">
+                <span>🔄</span>
+                <span>RRF 融合排序</span>
+                <span>🔄</span>
+            </div>
+            <div class="fusion-icons">
+                <div class="mini-icon">📝</div>
+                <div class="mini-icon">+</div>
+                <div class="mini-icon">🔢</div>
+                <div class="mini-icon">=</div>
+                <div class="mini-icon">🎯</div>
+            </div>
+            <div class="fusion-formula">Score = Σ 1 / (60 + rank)</div>
+        </div>
+
+        <div class="rerank-bubble">
+            <div class="rerank-title">
+                <span>🧠</span>
+                <span>Cross-Encoder 重排序</span>
+            </div>
+            <div class="result-badges">
+                <div class="result-badge gold">🥇 Doc A (0.95)</div>
+                <div class="result-badge green">🥈 Doc C (0.89)</div>
+                <div class="result-badge blue">🥉 Doc B (0.82)</div>
+                <div class="result-badge gray">Doc D (0.75)</div>
+            </div>
+        </div>
+
+        <div class="final-candy">
+            <span class="final-icon">✅</span>
+            <span class="final-text">高质量 Top-K 检索结果</span>
+        </div>
+    </div>
+</body>
+</html>

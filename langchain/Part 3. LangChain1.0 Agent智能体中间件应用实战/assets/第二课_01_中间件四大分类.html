@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中间件四大分类</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: "PingFang SC", "Microsoft YaHei", sans-serif; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); min-height: 100vh; padding: 40px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { text-align: center; color: #92400e; font-size: 36px; margin-bottom: 40px; }
+        .categories { display: grid; grid-template-columns: repeat(2, 1fr); gap: 25px; }
+        .category-box { background: white; border-radius: 16px; padding: 25px; box-shadow: 0 6px 25px rgba(0,0,0,0.1); }
+        .category-box.monitor { border-top: 5px solid #3b82f6; }
+        .category-box.modify { border-top: 5px solid #8b5cf6; }
+        .category-box.control { border-top: 5px solid #f97316; }
+        .category-box.enforce { border-top: 5px solid #ef4444; }
+        .cat-title { font-size: 22px; color: #1e293b; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+        .cat-subtitle { font-size: 14px; color: #64748b; margin-bottom: 15px; }
+        .cat-desc { font-size: 13px; color: #475569; line-height: 1.6; margin-bottom: 15px; }
+        .cat-items { background: #f8fafc; border-radius: 8px; padding: 12px; }
+        .cat-items h4 { font-size: 13px; color: #475569; margin-bottom: 8px; }
+        .cat-items ul { list-style: none; font-size: 12px; color: #64748b; }
+        .cat-items li { padding: 3px 0; }
+        .perf { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 11px; margin-top: 10px; }
+        .perf.blue { background: #dbeafe; color: #1d4ed8; }
+        .perf.purple { background: #ede9fe; color: #7c3aed; }
+        .perf.orange { background: #ffedd5; color: #ea580c; }
+        .perf.red { background: #fee2e2; color: #dc2626; }
+        @media (max-width: 800px) { .categories { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 中间件四大分类</h1>
+        <div class="categories">
+            <div class="category-box monitor">
+                <div class="cat-title"><span style="font-size:24px;">📊</span> Monitor 监控类</div>
+                <div class="cat-subtitle">观察执行状态、日志记录</div>
+                <div class="cat-desc">解决问题：调试困难、缺乏可观测性。性能影响极小，几乎无感知。</div>
+                <div class="cat-items">
+                    <h4>常见中间件：</h4>
+                    <ul>
+                        <li>• LangChainTracingMiddleware</li>
+                        <li>• ToolCallLogger</li>
+                        <li>• CostTrackingMiddleware</li>
+                    </ul>
+                </div>
+                <span class="perf blue">性能影响 &lt; 1ms</span>
+            </div>
+            <div class="category-box modify">
+                <div class="cat-title"><span style="font-size:24px;">✏️</span> Modify 修改类</div>
+                <div class="cat-subtitle">修改输入/输出、上下文管理</div>
+                <div class="cat-desc">解决问题：上下文窗口溢出、Prompt优化。性能影响取决于处理逻辑。</div>
+                <div class="cat-items">
+                    <h4>常见中间件：</h4>
+                    <ul>
+                        <li>• SummarizationMiddleware</li>
+                        <li>• DynamicPromptMiddleware</li>
+                        <li>• ContextEditingMiddleware</li>
+                    </ul>
+                </div>
+                <span class="perf purple">性能影响 1-50ms</span>
+            </div>
+            <div class="category-box control">
+                <div class="cat-title"><span style="font-size:24px;">🎛️</span> Control 控制类</div>
+                <div class="cat-subtitle">流程阻断、人工介入</div>
+                <div class="cat-desc">解决问题：AI幻觉、高风险操作失控。可能包含等待时间。</div>
+                <div class="cat-items">
+                    <h4>常见中间件：</h4>
+                    <ul>
+                        <li>• HumanInTheLoopMiddleware</li>
+                        <li>• RetryMiddleware</li>
+                        <li>• CircuitBreakerMiddleware</li>
+                    </ul>
+                </div>
+                <span class="perf orange">性能影响 5-20ms</span>
+            </div>
+            <div class="category-box enforce">
+                <div class="cat-title"><span style="font-size:24px;">🛡️</span> Enforce 强制类</div>
+                <div class="cat-subtitle">安全过滤、限流、合规检查</div>
+                <div class="cat-desc">解决问题：数据泄露、API滥用。性能影响较小，必须优先执行。</div>
+                <div class="cat-items">
+                    <h4>常见中间件：</h4>
+                    <ul>
+                        <li>• PIIMiddleware</li>
+                        <li>• ModelCallLimitMiddleware</li>
+                        <li>• RateLimitMiddleware</li>
+                    </ul>
+                </div>
+                <span class="perf red">性能影响 1-5ms</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LangChain 应用场景选择指南</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #fefce8 0%, #fef9c3 100%);
+            min-height: 100vh;
+            padding: 40px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #1c1917;
+            font-size: 36px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        .subtitle {
+            text-align: center;
+            color: #57534e;
+            font-size: 16px;
+            margin-bottom: 50px;
+        }
+        .question {
+            background: linear-gradient(135deg, #1c1917 0%, #292524 100%);
+            color: white;
+            padding: 30px 40px;
+            border-radius: 20px;
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 40px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+        .paths {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        .path {
+            display: flex;
+            align-items: stretch;
+            gap: 20px;
+        }
+        .path-condition {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px 30px;
+            border-radius: 16px;
+            min-width: 280px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 17px;
+            font-weight: 500;
+            line-height: 1.5;
+        }
+        .path-arrow {
+            display: flex;
+            align-items: center;
+            font-size: 24px;
+            color: #a8a29e;
+        }
+        .path-result {
+            flex: 1;
+            background: white;
+            border-radius: 16px;
+            padding: 25px 30px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        .result-icon {
+            font-size: 40px;
+        }
+        .result-text h3 {
+            color: #1c1917;
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+        .result-text p {
+            color: #78716c;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .result-badge {
+            background: #f3f4f6;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #6b7280;
+            margin-left: auto;
+        }
+        .sdk-note {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            margin-top: 35px;
+            border-left: 4px solid #667eea;
+        }
+        .sdk-note h4 {
+            color: #1c1917;
+            font-size: 17px;
+            margin-bottom: 10px;
+        }
+        .sdk-note p {
+            color: #57534e;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+        .sdk-note code {
+            background: #f3f4f6;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: Monaco, monospace;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>LangChain 应用场景选择指南</h1>
+        <p class="subtitle">根据你的需求，快速找到最合适的方案</p>
+
+        <div class="question">
+            🤔 你要做什么 AI 应用？
+        </div>
+
+        <div class="paths">
+            <div class="path">
+                <div class="path-condition">只想简单调用模型聊天<br>（翻译 / 问答 / 摘要）</div>
+                <div class="path-arrow">→</div>
+                <div class="path-result">
+                    <span class="result-icon">📦</span>
+                    <div class="result-text">
+                        <h3>直接用 OpenAI SDK</h3>
+                        <p>最轻量，无需 LangChain，直接调用 API</p>
+                    </div>
+                    <span class="result-badge">最简单</span>
+                </div>
+            </div>
+
+            <div class="path">
+                <div class="path-condition">需要联网查资料<br>执行代码、操作数据库</div>
+                <div class="path-arrow">→</div>
+                <div class="path-result">
+                    <span class="result-icon">⚡</span>
+                    <div class="result-text">
+                        <h3>用 LangChain 1.0</h3>
+                        <p>快速搭建 Agent，10行代码完成复杂任务<br>参考：客服机器人、数据分析助手</p>
+                    </div>
+                    <span class="result-badge">推荐</span>
+                </div>
+            </div>
+
+            <div class="path">
+                <div class="path-condition">流程很复杂<br>（多人审批 / 定时任务 / 状态分支）</div>
+                <div class="path-arrow">→</div>
+                <div class="path-result">
+                    <span class="result-icon">🔄</span>
+                    <div class="result-text">
+                        <h3>用 LangGraph 1.0</h3>
+                        <p>精确控制每个步骤，状态管理 + 循环控制<br>参考：自动化工作流、ERP系统集成</p>
+                    </div>
+                    <span class="result-badge">复杂场景</span>
+                </div>
+            </div>
+
+            <div class="path">
+                <div class="path-condition">不确定，先试试想法<br>后期可能迁移到 LangGraph</div>
+                <div class="path-arrow">→</div>
+                <div class="path-result">
+                    <span class="result-icon">🚀</span>
+                    <div class="result-text">
+                        <h3>用 LangChain 1.0 快速验证</h3>
+                        <p>前期快速开发，后期可无缝迁移到 LangGraph</p>
+                    </div>
+                    <span class="result-badge">最佳起点</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="sdk-note">
+            <h4>💡 SDK 选择建议</h4>
+            <p>
+                如果只是<strong>简单调用模型</strong>，直接用 <code>openai</code> SDK 更轻量，<br>
+                如果需要<strong>工具调用、多轮对话、Agent 构建</strong>，使用 LangChain 1.0
+            </p>
+        </div>
+    </div>
+</body>
+</html>

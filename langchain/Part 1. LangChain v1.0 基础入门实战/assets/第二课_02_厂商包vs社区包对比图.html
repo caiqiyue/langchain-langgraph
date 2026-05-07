@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LangChain 包对比分析</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
+            min-height: 100vh;
+            padding: 40px;
+        }
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #831843;
+            font-size: 34px;
+            margin-bottom: 40px;
+            font-weight: 600;
+        }
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+        }
+        .pkg-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        .pkg-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .pkg-icon {
+            width: 55px;
+            height: 55px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+        }
+        .icon-openai { background: linear-gradient(135deg, #10a37f 0%, #059669 100%); }
+        .icon-community { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
+        .header-text h3 {
+            font-size: 20px;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+        .header-text span {
+            font-size: 13px;
+            color: #64748b;
+        }
+        .pkg-features {
+            list-style: none;
+        }
+        .pkg-features li {
+            padding: 10px 0;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 14px;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .pkg-features li:last-child { border-bottom: none; }
+        .check { color: #10a37f; }
+        .warning { color: #f59e0b; }
+        .vs-section {
+            background: white;
+            border-radius: 20px;
+            padding: 35px;
+            margin-top: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        .vs-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .vs-table th {
+            background: #f8fafc;
+            padding: 16px 20px;
+            text-align: left;
+            font-size: 14px;
+            color: #475569;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .vs-table td {
+            padding: 16px 20px;
+            font-size: 14px;
+            color: #334155;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .badge-recommend {
+            background: #dcfce7;
+            color: #15803d;
+        }
+        .badge-caution {
+            background: #fef3c7;
+            color: #b45309;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>langchain-openai vs langchain-community</h1>
+
+        <div class="comparison-grid">
+            <div class="pkg-card">
+                <div class="pkg-header">
+                    <div class="pkg-icon icon-openai">🤖</div>
+                    <div class="header-text">
+                        <h3>langchain-openai</h3>
+                        <span>官方厂商包</span>
+                    </div>
+                </div>
+                <ul class="pkg-features">
+                    <li><span class="check">✅</span> OpenAI官方 + LangChain团队维护</li>
+                    <li><span class="check">✅</span> 即时跟进 API 更新</li>
+                    <li><span class="check">✅</span> 支持所有新特性（音频、视觉）</li>
+                    <li><span class="check">✅</span> 生产可用，强烈推荐</li>
+                    <li><span class="check">✅</span> 功能最完整</li>
+                </ul>
+            </div>
+
+            <div class="pkg-card">
+                <div class="pkg-header">
+                    <div class="pkg-icon icon-community">👥</div>
+                    <div class="header-text">
+                        <h3>langchain-community</h3>
+                        <span>社区维护包</span>
+                    </div>
+                </div>
+                <ul class="pkg-features">
+                    <li><span class="warning">⚠️</span> 社区维护，质量参差不齐</li>
+                    <li><span class="warning">⚠️</span> 更新滞后数周</li>
+                    <li><span class="warning">⚠️</span> 仅基础功能</li>
+                    <li><span class="warning">⚠️</span> 开发环境快速验证可用</li>
+                    <li><span class="warning">⚠️</span> 谨慎用于生产环境</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="vs-section">
+            <h3 style="color: #1e293b; font-size: 20px;">详细对比</h3>
+            <table class="vs-table">
+                <thead>
+                    <tr>
+                        <th>维度</th>
+                        <th>langchain-openai</th>
+                        <th>langchain-community 中的 OpenAI</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>维护方</strong></td>
+                        <td>OpenAI官方 + LangChain团队</td>
+                        <td>社区维护</td>
+                    </tr>
+                    <tr>
+                        <td><strong>更新频率</strong></td>
+                        <td>即时跟进API更新</td>
+                        <td>延迟数周</td>
+                    </tr>
+                    <tr>
+                        <td><strong>功能完整性</strong></td>
+                        <td>支持所有新特性（如音频、视觉）</td>
+                        <td>仅基础功能</td>
+                    </tr>
+                    <tr>
+                        <td><strong>生产可用性</strong></td>
+                        <td><span class="badge badge-recommend">强烈推荐</span></td>
+                        <td><span class="badge badge-caution">谨慎使用</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>适用场景</strong></td>
+                        <td>生产环境</td>
+                        <td>开发环境快速验证</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div style="margin-top: 25px; padding: 20px; background: #f8fafc; border-radius: 12px;">
+                <h4 style="color: #1e293b; margin-bottom: 12px;">💡 最佳实践</h4>
+                <ul style="color: #475569; font-size: 14px; line-height: 1.8; list-style: none;">
+                    <li>• <strong>生产环境</strong>：务必使用厂商包，享受最新功能</li>
+                    <li>• <strong>开发环境</strong>：可用 community 快速验证想法</li>
+                    <li>• <strong>多厂商切换</strong>：使用 init_chat_model()，业务代码无需改动</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

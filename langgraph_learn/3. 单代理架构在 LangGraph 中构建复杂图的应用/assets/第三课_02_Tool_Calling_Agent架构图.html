@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tool Calling Agent 架构图</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #e94560;
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 28px;
+        }
+        .diagram {
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 30px;
+        }
+        .flow {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        .row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .node {
+            background: linear-gradient(145deg, #0f3460, #16213e);
+            border: 2px solid #e94560;
+            border-radius: 12px;
+            padding: 15px 25px;
+            color: #fff;
+            text-align: center;
+            min-width: 120px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        .node:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(233,69,96,0.3);
+        }
+        .node.start {
+            background: linear-gradient(145deg, #e94560, #c23a51);
+        }
+        .node.model {
+            background: linear-gradient(145deg, #3498db, #2980b9);
+            border-color: #3498db;
+        }
+        .node.router {
+            background: linear-gradient(145deg, #9b59b6, #8e44ad);
+            border-color: #9b59b6;
+        }
+        .node.tool {
+            background: linear-gradient(145deg, #f39c12, #d68910);
+            border-color: #f39c12;
+        }
+        .node.end {
+            background: linear-gradient(145deg, #27ae60, #219a52);
+            border-color: #2ecc71;
+        }
+        .arrow {
+            color: #e94560;
+            font-size: 20px;
+        }
+        .loop-arrow {
+            color: #9b59b6;
+            font-size: 16px;
+        }
+        .branch {
+            display: flex;
+            gap: 60px;
+            margin: 10px 0;
+        }
+        .branch-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        .label {
+            color: #9b59b6;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .description {
+            color: #aaa;
+            text-align: center;
+            margin-top: 30px;
+            line-height: 1.8;
+        }
+        .key-point {
+            background: rgba(155,89,182,0.2);
+            border-left: 4px solid #9b59b6;
+            padding: 15px 20px;
+            margin-top: 20px;
+            border-radius: 0 8px 8px 0;
+            color: #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Tool Calling Agent 架构图</h1>
+        <div class="diagram">
+            <div class="flow">
+                <div class="row">
+                    <div class="node start">用户输入</div>
+                    <span class="arrow">→</span>
+                    <div class="node model">LLM + bind_tools</div>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="row">
+                    <div class="node router">结构化输出判断</div>
+                </div>
+                <div class="branch">
+                    <div class="branch-item">
+                        <span class="label">需要工具</span>
+                        <span class="arrow">↓</span>
+                        <div class="node tool">ToolNode</div>
+                    </div>
+                    <div class="branch-item">
+                        <span class="label">直接回复</span>
+                        <span class="arrow">↓</span>
+                        <div class="node end">Response</div>
+                    </div>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="row">
+                    <div class="node end">End</div>
+                </div>
+            </div>
+
+            <div class="key-point">
+                <strong>与Router Agent的区别：</strong><br>
+                Tool Calling Agent允许大模型在一个节点内自主选择并调用多个工具，而不是只能执行单一路径。
+            </div>
+
+            <div class="description">
+                <strong>工作原理：</strong><br>
+                1. 大模型通过bind_tools知道可用工具列表<br>
+                2. 根据用户输入生成tool_calls<br>
+                3. ToolNode执行相应工具并返回结果<br>
+                4. 支持在一个节点内调用多个工具
+            </div>
+        </div>
+    </div>
+</body>
+</html>

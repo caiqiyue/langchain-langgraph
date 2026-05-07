@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>混合检索引擎架构 - 简洁现代</title>
+    <style>
+        /* ========================================
+           设计系统
+           主色：青绿系 (#0d9488, #14b8a6, #2dd4bf)
+           风格：简洁现代、双路并行
+           ======================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 50px; }
+        h1 { color: #134e4a; font-size: 38px; margin-bottom: 15px; }
+        .subtitle { color: #0d9488; font-size: 18px; }
+
+        /* 双路并行 */
+        .parallel-container {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        .parallel-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        /* 检索分支 */
+        .retrieval-branch {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            min-width: 280px;
+            flex: 1;
+            max-width: 400px;
+        }
+        .branch-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0fdfa;
+        }
+        .branch-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+        .branch-icon.bm25 { background: linear-gradient(135deg, #fb923c, #f97316); }
+        .branch-icon.vector { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+        .branch-title { font-size: 20px; font-weight: 700; color: #134e4a; }
+        .branch-sub { font-size: 13px; color: #64748b; }
+
+        .branch-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .mini-step {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            background: #f0fdfa;
+            border-radius: 10px;
+            font-size: 14px;
+            color: #134e4a;
+        }
+        .mini-num {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #0d9488;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        /* 合并节点 */
+        .merge-arrow {
+            font-size: 40px;
+            color: #0d9488;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        /* 融合层 */
+        .fusion-layer {
+            background: linear-gradient(135deg, #0d9488, #14b8a6);
+            border-radius: 20px;
+            padding: 30px;
+            color: white;
+            text-align: center;
+            box-shadow: 0 8px 30px rgba(13, 148, 136, 0.3);
+        }
+        .fusion-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        .fusion-icons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .fusion-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+
+        /* RRF 公式 */
+        .rrf-formula {
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            padding: 15px 25px;
+            font-family: "Consolas", monospace;
+            font-size: 16px;
+            display: inline-block;
+        }
+
+        /* 重排层 */
+        .rerank-layer {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            margin-top: 30px;
+        }
+        .rerank-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #134e4a;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .rerank-result {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .result-item {
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #ccfbf1, #99f6e4);
+            border-radius: 10px;
+            font-size: 14px;
+            color: #134e4a;
+            border: 2px solid #2dd4bf;
+        }
+        .result-item.top {
+            background: linear-gradient(135deg, #0d9488, #14b8a6);
+            color: white;
+            border-color: #0d9488;
+            font-weight: 700;
+        }
+
+        /* 输出 */
+        .output-final {
+            background: linear-gradient(135deg, #134e4a, #0f766e);
+            border-radius: 20px;
+            padding: 25px 40px;
+            color: white;
+            text-align: center;
+            margin-top: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            box-shadow: 0 8px 30px rgba(19, 78, 74, 0.3);
+        }
+        .output-final-icon { font-size: 36px; }
+        .output-final-text { font-size: 20px; font-weight: 700; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>混合检索引擎架构</h1>
+            <p class="subtitle">BM25 + 向量检索 → 融合排序 → 重排序</p>
+        </header>
+
+        <div class="parallel-container">
+            <!-- 第一行：双路并行检索 -->
+            <div class="parallel-row">
+                <div class="retrieval-branch">
+                    <div class="branch-header">
+                        <div class="branch-icon bm25">📝</div>
+                        <div>
+                            <div class="branch-title">BM25 检索</div>
+                            <div class="branch-sub">传统关键词匹配</div>
+                        </div>
+                    </div>
+                    <div class="branch-steps">
+                        <div class="mini-step">
+                            <span class="mini-num">1</span>
+                            <span>Query 分词处理</span>
+                        </div>
+                        <div class="mini-step">
+                            <span class="mini-num">2</span>
+                            <span>计算词频 IDF</span>
+                        </div>
+                        <div class="mini-step">
+                            <span class="mini-num">3</span>
+                            <span>BM25 打分排序</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="retrieval-branch">
+                    <div class="branch-header">
+                        <div class="branch-icon vector">🔢</div>
+                        <div>
+                            <div class="branch-title">向量检索</div>
+                            <div class="branch-sub">语义相似度匹配</div>
+                        </div>
+                    </div>
+                    <div class="branch-steps">
+                        <div class="mini-step">
+                            <span class="mini-num">1</span>
+                            <span>Query 向量化</span>
+                        </div>
+                        <div class="mini-step">
+                            <span class="mini-num">2</span>
+                            <span>ANN 相似度搜索</span>
+                        </div>
+                        <div class="mini-step">
+                            <span class="mini-num">3</span>
+                            <span>Top-K 候选选取</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="merge-arrow">⬇️</div>
+
+            <!-- 融合层 -->
+            <div class="fusion-layer">
+                <div class="fusion-title">🔄 融合排序层 (RRF)</div>
+                <div class="fusion-icons">
+                    <div class="fusion-icon">📝</div>
+                    <div class="fusion-icon">+</div>
+                    <div class="fusion-icon">🔢</div>
+                    <div class="fusion-icon">=</div>
+                    <div class="fusion-icon">🎯</div>
+                </div>
+                <div class="rrf-formula">
+                    Score = Σ 1 / (k + rank_i)
+                </div>
+            </div>
+
+            <div class="merge-arrow">⬇️</div>
+
+            <!-- 重排层 -->
+            <div class="rerank-layer">
+                <div class="rerank-title">
+                    <span>🧠</span>
+                    <span>Cross-Encoder 重排序</span>
+                </div>
+                <div class="rerank-result">
+                    <div class="result-item top">Doc A (0.95)</div>
+                    <div class="result-item">Doc C (0.89)</div>
+                    <div class="result-item">Doc B (0.82)</div>
+                    <div class="result-item">Doc D (0.75)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="output-final">
+            <span class="output-final-icon">✅</span>
+            <span class="output-final-text">最终 Top-K 高质量检索结果</span>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReAct 执行循环图</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            min-height: 100vh;
+            padding: 40px;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #166534;
+            font-size: 36px;
+            margin-bottom: 50px;
+            font-weight: 600;
+        }
+        .cycle-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .step-box {
+            background: white;
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            text-align: center;
+            min-width: 180px;
+            position: relative;
+            transition: transform 0.3s;
+        }
+        .step-box:hover {
+            transform: scale(1.05);
+        }
+        .step-number {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+        }
+        .step1 .step-number { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); }
+        .step2 .step-number { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); }
+        .step3 .step-number { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); }
+        .step4 .step-number { background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%); }
+        .step-title {
+            font-size: 22px;
+            color: #1e293b;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        .step-subtitle {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 12px;
+        }
+        .step-desc {
+            font-size: 13px;
+            color: #475569;
+            line-height: 1.5;
+        }
+        .arrow-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #22c55e;
+            font-size: 32px;
+        }
+        .arrow-down {
+            display: none;
+        }
+        .loop-label {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-top: 20px;
+        }
+        .explanation {
+            background: white;
+            border-radius: 16px;
+            padding: 30px 40px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            margin-top: 50px;
+        }
+        .explanation h3 {
+            color: #166534;
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+        .explanation-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .explanation-table th, .explanation-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .explanation-table th {
+            color: #166534;
+            font-weight: 600;
+        }
+        .explanation-table td {
+            color: #475569;
+        }
+        @media (max-width: 900px) {
+            .cycle-container { flex-direction: column; }
+            .arrow-box { transform: rotate(90deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 ReAct 执行循环</h1>
+
+        <div class="cycle-container">
+            <div class="step-box step1">
+                <div class="step-number">1</div>
+                <div class="step-title">Thought</div>
+                <div class="step-subtitle">推理</div>
+                <div class="step-desc">分析当前状态<br>决定下一步行动</div>
+            </div>
+
+            <div class="arrow-box">
+                <span>→</span>
+            </div>
+
+            <div class="step-box step2">
+                <div class="step-number">2</div>
+                <div class="step-title">Action</div>
+                <div class="step-subtitle">行动</div>
+                <div class="step-desc">选择并调用工具<br>构造输入参数</div>
+            </div>
+
+            <div class="arrow-box">
+                <span>→</span>
+            </div>
+
+            <div class="step-box step3">
+                <div class="step-number">3</div>
+                <div class="step-title">Observation</div>
+                <div class="step-subtitle">观察</div>
+                <div class="step-desc">获取工具返回结果<br>作为下一步输入</div>
+            </div>
+
+            <div class="arrow-box">
+                <span>→</span>
+                <div class="loop-label">循环</div>
+            </div>
+        </div>
+
+        <div class="explanation">
+            <h3>📖 循环详解</h3>
+            <table class="explanation-table">
+                <tr>
+                    <th>阶段</th>
+                    <th>作用</th>
+                    <th>示例</th>
+                </tr>
+                <tr>
+                    <td><strong>Thought</strong></td>
+                    <td>LLM 分析问题，决定是否需要工具</td>
+                    <td>"用户问天气，我需要调用天气工具"</td>
+                </tr>
+                <tr>
+                    <td><strong>Action</strong></td>
+                    <td>调用具体工具，传入参数</td>
+                    <td>get_weather(city="北京")</td>
+                </tr>
+                <tr>
+                    <td><strong>Observation</strong></td>
+                    <td>获取结果，决定下一步</td>
+                    <td>"北京：晴天，25°C"</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

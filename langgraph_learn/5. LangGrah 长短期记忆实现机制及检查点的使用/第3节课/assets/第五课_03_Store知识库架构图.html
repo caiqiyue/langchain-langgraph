@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store 知识库架构</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #2d1b4e 100%);
+            min-height: 100vh;
+            padding: 40px;
+        }
+        .container { max-width: 1100px; margin: 0 auto; }
+        h1 {
+            text-align: center;
+            color: #fff;
+            font-size: 32px;
+            margin-bottom: 40px;
+        }
+        .store-architecture {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        .store-card {
+            background: rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 25px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .store-card h3 {
+            color: #43e97b;
+            font-size: 18px;
+            margin-bottom: 12px;
+        }
+        .store-card p {
+            color: rgba(255,255,255,0.7);
+            font-size: 13px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        .code-demo {
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            padding: 12px;
+            font-family: monospace;
+            color: #4facfe;
+            font-size: 12px;
+        }
+        .namespace-visual {
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 30px;
+        }
+        .namespace-visual h2 {
+            color: #fff;
+            font-size: 22px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .namespace-grid {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .namespace-item {
+            background: rgba(102, 126, 234, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            min-width: 200px;
+            text-align: center;
+            border: 1px solid rgba(102, 126, 234, 0.3);
+        }
+        .namespace-item .label {
+            color: #667eea;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        .namespace-item .value {
+            color: #fff;
+            font-size: 16px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Store 知识库架构</h1>
+        
+        <div class="store-architecture">
+            <div class="store-card">
+                <h3>命名空间 (Namespace)</h3>
+                <p>用于对存储数据进行逻辑分组的标识符</p>
+                <div class="code-demo">namespace = (user_id, "memories")</div>
+            </div>
+            <div class="store-card">
+                <h3>存储操作</h3>
+                <p>支持 put、get、search、delete 等操作</p>
+                <div class="code-demo">store.put(namespace, id, data)
+store.get(namespace, id)
+store.search(namespace)</div>
+            </div>
+            <div class="store-card">
+                <h3>跨线程共享</h3>
+                <p>Store中的数据可在不同线程间共享访问</p>
+                <div class="code-demo">config = {"configurable": {"thread_id": "10"}}</div>
+            </div>
+        </div>
+        
+        <div class="namespace-visual">
+            <h2>Store 与 Checkpointer 的区别</h2>
+            <div class="namespace-grid">
+                <div class="namespace-item">
+                    <div class="label">Checkpointer</div>
+                    <div class="value">线程内状态保存</div>
+                </div>
+                <div class="namespace-item">
+                    <div class="label">Store</div>
+                    <div class="value">跨线程信息共享</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

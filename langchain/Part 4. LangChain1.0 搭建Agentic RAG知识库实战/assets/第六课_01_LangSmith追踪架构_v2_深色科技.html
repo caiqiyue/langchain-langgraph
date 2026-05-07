@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LangSmith 追踪架构 - 深色科技</title>
+    <style>
+        /* ========================================
+           设计系统
+           主色：深色科技 (#0f172a, #1e293b, #f97316)
+           风格：深色主题、霓虹橙色
+           ======================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", "Consolas", monospace;
+            background: #0f172a;
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: #e2e8f0;
+        }
+        .container { max-width: 1100px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 50px; }
+        h1 {
+            color: #f8fafc;
+            font-size: 42px;
+            text-shadow: 0 0 40px rgba(249, 115, 22, 0.5);
+            margin-bottom: 15px;
+        }
+        .subtitle { color: #fb923c; font-size: 18px; font-family: "Consolas", monospace; }
+
+        /* 垂直树 */
+        .tech-tree {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        /* 项目节点 */
+        .project-box {
+            background: linear-gradient(135deg, #c2410c, #ea580c);
+            border-radius: 16px;
+            padding: 25px 40px;
+            color: white;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(249, 115, 22, 0.4);
+            min-width: 260px;
+            border: 2px solid #fb923c;
+        }
+        .project-icon { font-size: 32px; margin-bottom: 8px; }
+        .project-title {
+            font-size: 20px;
+            font-weight: 700;
+            font-family: "Consolas", monospace;
+        }
+        .project-sub { font-size: 12px; opacity: 0.85; margin-top: 5px; }
+
+        /* 连接线 */
+        .connector-line {
+            width: 3px;
+            height: 35px;
+            background: linear-gradient(to bottom, #fb923c, #fdba74);
+        }
+
+        /* Trace 网格 */
+        .trace-grid {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+        .trace-card {
+            background: #1e293b;
+            border-radius: 14px;
+            padding: 20px;
+            min-width: 220px;
+            flex: 1;
+            max-width: 280px;
+            border: 1px solid #334155;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .trace-card:hover { border-color: #f97316; box-shadow: 0 0 20px rgba(249, 115, 22, 0.2); }
+        .trace-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: #f97316;
+            border-radius: 4px 0 0 4px;
+        }
+        .trace-top {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .trace-icon { font-size: 22px; }
+        .trace-id {
+            font-size: 15px;
+            font-weight: 700;
+            color: #f8fafc;
+            font-family: "Consolas", monospace;
+        }
+        .trace-query {
+            font-size: 13px;
+            color: #94a3b8;
+            padding: 10px;
+            background: #0f172a;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #334155;
+        }
+        .trace-stats {
+            display: flex;
+            gap: 15px;
+            font-size: 12px;
+            color: #fb923c;
+            font-family: "Consolas", monospace;
+        }
+
+        /* Runs 容器 */
+        .runs-container {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 25px;
+            width: 100%;
+            max-width: 750px;
+            border: 1px solid #334155;
+        }
+        .runs-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #334155;
+        }
+        .runs-icon { font-size: 24px; }
+        .runs-title {
+            font-size: 17px;
+            font-weight: 700;
+            color: #f8fafc;
+        }
+        .runs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .run-chip {
+            background: #0f172a;
+            border-radius: 10px;
+            padding: 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid #334155;
+            transition: all 0.3s ease;
+        }
+        .run-chip:hover { border-color: #f97316; }
+        .run-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        .run-icon.purple { background: linear-gradient(135deg, #7c3aed, #6d28d9); }
+        .run-icon.green { background: linear-gradient(135deg, #059669, #10b981); }
+        .run-icon.cyan { background: linear-gradient(135deg, #0891b2, #06b6d4); }
+        .run-icon.red { background: linear-gradient(135deg, #dc2626, #ef4444); }
+
+        .run-info-name { font-size: 13px; font-weight: 600; color: #e2e8f0; }
+        .run-info-type { font-size: 11px; color: #64748b; font-family: "Consolas", monospace; }
+
+        /* Feedback */
+        .feedback-box {
+            background: linear-gradient(135deg, #1e1b4b, #2e1065);
+            border-radius: 14px;
+            padding: 20px 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border: 1px solid #7c3aed;
+            width: 100%;
+            max-width: 400px;
+        }
+        .feedback-icon { font-size: 26px; }
+        .feedback-label {
+            font-size: 12px;
+            color: #a78bfa;
+            font-family: "Consolas", monospace;
+        }
+        .feedback-value { font-size: 16px; font-weight: 700; color: #f8fafc; }
+
+        /* Metadata */
+        .meta-grid {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .meta-tag {
+            background: #1e293b;
+            border-radius: 8px;
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #94a3b8;
+            border: 1px solid #334155;
+            font-family: "Consolas", monospace;
+        }
+        .meta-key { color: #fb923c; }
+
+        /* 说明 */
+        .tree-legend {
+            background: #1e293b;
+            border-radius: 14px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid #334155;
+            width: 100%;
+            max-width: 600px;
+        }
+        .legend-title { font-size: 16px; font-weight: 700; color: #f8fafc; margin-bottom: 15px; }
+        .legend-text { font-size: 13px; color: #94a3b8; line-height: 1.8; font-family: "Consolas", monospace; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>LANGSMITH TRACING</h1>
+            <p class="subtitle">Project → Trace → Run → Feedback</p>
+        </header>
+
+        <div class="tech-tree">
+            <!-- Project -->
+            <div class="project-box">
+                <div class="project-icon">📊</div>
+                <div class="project-title">PROJECT</div>
+                <div class="project-sub">Agentic_RAG_Demo</div>
+            </div>
+
+            <div class="connector-line"></div>
+
+            <!-- Traces -->
+            <div class="trace-grid">
+                <div class="trace-card">
+                    <div class="trace-top">
+                        <span class="trace-icon">🔍</span>
+                        <span class="trace-id">TRACE #001</span>
+                    </div>
+                    <div class="trace-query">"诺贝尔物理学奖得主"</div>
+                    <div class="trace-stats">
+                        <span>⏱ 2.3s</span>
+                        <span>📝 1.2K</span>
+                    </div>
+                </div>
+                <div class="trace-card">
+                    <div class="trace-top">
+                        <span class="trace-icon">🔍</span>
+                        <span class="trace-id">TRACE #002</span>
+                    </div>
+                    <div class="trace-query">"2024年AI进展"</div>
+                    <div class="trace-stats">
+                        <span>⏱ 3.1s</span>
+                        <span>📝 2.1K</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="connector-line"></div>
+
+            <!-- Runs -->
+            <div class="runs-container">
+                <div class="runs-header">
+                    <span class="runs-icon">🏃</span>
+                    <span class="runs-title">RUNS IN TRACE #001</span>
+                </div>
+                <div class="runs-grid">
+                    <div class="run-chip">
+                        <div class="run-icon purple">🤖</div>
+                        <div>
+                            <div class="run-info-name">LLM Run</div>
+                            <div class="run-info-type">ChatDeepSeek</div>
+                        </div>
+                    </div>
+                    <div class="run-chip">
+                        <div class="run-icon green">🔍</div>
+                        <div>
+                            <div class="run-info-name">Tool Run</div>
+                            <div class="run-info-type">TavilySearch</div>
+                        </div>
+                    </div>
+                    <div class="run-chip">
+                        <div class="run-icon cyan">🔗</div>
+                        <div>
+                            <div class="run-info-name">Chain Run</div>
+                            <div class="run-info-type">RetrievalQA</div>
+                        </div>
+                    </div>
+                    <div class="run-chip">
+                        <div class="run-icon red">🤖</div>
+                        <div>
+                            <div class="run-info-name">Agent Run</div>
+                            <div class="run-info-type">create_agent</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="connector-line"></div>
+
+            <!-- Feedback -->
+            <div class="feedback-box">
+                <span class="feedback-icon">💬</span>
+                <div>
+                    <div class="feedback-label">// FEEDBACK</div>
+                    <div class="feedback-value">Score: 5/5 · tag: good</div>
+                </div>
+            </div>
+
+            <!-- Metadata -->
+            <div class="runs-container">
+                <div class="runs-header">
+                    <span class="runs-icon">📋</span>
+                    <span class="runs-title">METADATA</span>
+                </div>
+                <div class="meta-grid">
+                    <div class="meta-tag"><span class="meta-key">version:</span> v1.0</div>
+                    <div class="meta-tag"><span class="meta-key">env:</span> production</div>
+                    <div class="meta-tag"><span class="meta-key">user_id:</span> xxx</div>
+                    <div class="meta-tag"><span class="meta-key">timestamp:</span> 2024-01-15</div>
+                </div>
+            </div>
+
+            <!-- Legend -->
+            <div class="tree-legend">
+                <div class="legend-title">// ARCHITECTURE</div>
+                <div class="legend-text">
+                    Project.contains(Traces[])<br>
+                    Trace.contains(Runs[])<br>
+                    Run.metadata: { key: value }<br>
+                    Run.feedback: Score | Tag
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

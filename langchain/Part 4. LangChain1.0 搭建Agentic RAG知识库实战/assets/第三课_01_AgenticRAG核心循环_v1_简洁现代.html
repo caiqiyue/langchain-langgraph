@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentic RAG 核心循环 - 简洁现代</title>
+    <style>
+        /* ========================================
+           设计系统
+           主色：蓝紫渐变 (#3b82f6, #8b5cf6, #6366f1)
+           风格：简洁现代、循环流程图
+           ======================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 50px; }
+        h1 { color: #1e1b4b; font-size: 38px; margin-bottom: 15px; }
+        .subtitle { color: #6366f1; font-size: 18px; }
+
+        /* 循环流程图 */
+        .loop-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 50px;
+            position: relative;
+        }
+        .loop-center {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 32px;
+            box-shadow: 0 10px 40px rgba(99, 102, 241, 0.4);
+            position: relative;
+            z-index: 2;
+        }
+        .loop-center-label {
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 5px;
+        }
+
+        /* 四个阶段的圆形节点 */
+        .loop-nodes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+        .loop-node {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 25px rgba(0,0,0,0.12);
+            transition: transform 0.3s ease;
+        }
+        .loop-node:hover { transform: scale(1.08); }
+        .loop-node.top {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .loop-node.right {
+            background: linear-gradient(135deg, #10b981, #059669);
+            top: 50%;
+            right: 0;
+            transform: translateY(-50%);
+        }
+        .loop-node.bottom {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .loop-node.left {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+        }
+        .loop-node:hover.top { transform: translateX(-50%) scale(1.08); }
+        .loop-node:hover.right { transform: translateY(-50%) scale(1.08); }
+        .loop-node:hover.bottom { transform: translateX(-50%) scale(1.08); }
+        .loop-node:hover.left { transform: translateY(-50%) scale(1.08); }
+
+        .node-icon { font-size: 32px; margin-bottom: 5px; }
+        .node-label { font-size: 14px; font-weight: 600; color: white; }
+        .node-sub { font-size: 11px; color: rgba(255,255,255,0.8); }
+
+        /* 箭头连接线 */
+        .loop-arrows {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+        .loop-arrows svg {
+            width: 100%;
+            height: 100%;
+        }
+        .arrow-path {
+            fill: none;
+            stroke: #c7d2fe;
+            stroke-width: 3;
+            stroke-dasharray: 8, 4;
+            animation: dash 20s linear infinite;
+        }
+        @keyframes dash {
+            to { stroke-dashoffset: -100; }
+        }
+
+        /* 阶段说明 */
+        .loop-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+        }
+        .step-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            border-left: 4px solid;
+            transition: all 0.3s ease;
+        }
+        .step-card:hover { transform: translateX(5px); }
+        .step-card:nth-child(1) { border-color: #3b82f6; }
+        .step-card:nth-child(2) { border-color: #10b981; }
+        .step-card:nth-child(3) { border-color: #f59e0b; }
+        .step-card:nth-child(4) { border-color: #ef4444; }
+
+        .step-card h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .step-card:nth-child(1) h3 { color: #1d4ed8; }
+        .step-card:nth-child(2) h3 { color: #047857; }
+        .step-card:nth-child(3) h3 { color: #b45309; }
+        .step-card:nth-child(4) h3 { color: #dc2626; }
+
+        .step-card p { color: #64748b; font-size: 14px; line-height: 1.7; }
+        .step-code {
+            font-family: "Consolas", monospace;
+            font-size: 12px;
+            background: #f8fafc;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 12px;
+            color: #475569;
+        }
+
+        /* 迭代提示 */
+        .iteration-badge {
+            display: inline-block;
+            background: #e0e7ff;
+            color: #4338ca;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Agentic RAG 核心循环</h1>
+            <p class="subtitle">Thought → Action → Observation → 迭代评估</p>
+        </header>
+
+        <div class="loop-container" style="height: 400px;">
+            <div class="loop-arrows">
+                <svg viewBox="0 0 400 400">
+                    <!-- 外圈循环路径 -->
+                    <rect x="140" y="20" width="120" height="60" rx="30"
+                          fill="none" stroke="#c7d2fe" stroke-width="3" stroke-dasharray="8,4"/>
+                    <rect x="320" y="160" width="60" height="120" rx="30"
+                          fill="none" stroke="#c7d2fe" stroke-width="3" stroke-dasharray="8,4"/>
+                    <rect x="140" y="320" width="120" height="60" rx="30"
+                          fill="none" stroke="#c7d2fe" stroke-width="3" stroke-dasharray="8,4"/>
+                    <rect x="20" y="160" width="60" height="120" rx="30"
+                          fill="none" stroke="#c7d2fe" stroke-width="3" stroke-dasharray="8,4"/>
+                </svg>
+            </div>
+            <div class="loop-nodes">
+                <div class="loop-node top">
+                    <span class="node-icon">🧠</span>
+                    <span class="node-label">LLM 决策</span>
+                    <span class="node-sub">Think</span>
+                </div>
+                <div class="loop-node right">
+                    <span class="node-icon">🔍</span>
+                    <span class="node-label">检索工具</span>
+                    <span class="node-sub">Action</span>
+                </div>
+                <div class="loop-node bottom">
+                    <span class="node-icon">📊</span>
+                    <span class="node-label">评估结果</span>
+                    <span class="node-sub">Observe</span>
+                </div>
+                <div class="loop-node left">
+                    <span class="node-icon">❓</span>
+                    <span class="node-label">判断结束</span>
+                    <span class="node-sub">Done?</span>
+                </div>
+            </div>
+            <div class="loop-center">
+                <span>🔄</span>
+                <span class="loop-center-label">Agent</span>
+            </div>
+        </div>
+
+        <div style="text-align: center;">
+            <span class="iteration-badge">♻️ 循环迭代直到获得足够信息</span>
+        </div>
+
+        <div class="loop-steps">
+            <div class="step-card">
+                <h3><span>🧠</span> LLM 决策 (Thought)</h3>
+                <p>Agent 分析用户问题，决定是否需要检索，以及使用什么工具</p>
+                <div class="step-code">model.bind_tools([rag_tool])<br>agent.prompt</div>
+            </div>
+            <div class="step-card">
+                <h3><span>🔍</span> 执行检索 (Action)</h3>
+                <p>调用 RAG 工具执行向量检索，获取相关文档片段</p>
+                <div class="step-code">retriever.get_relevant_documents(query)</div>
+            </div>
+            <div class="step-card">
+                <h3><span>📊</span> 观察评估 (Observation)</h3>
+                <p>将检索结果反馈给 LLM，评估信息是否足够回答问题</p>
+                <div class="step-code">context + retrieved_docs</div>
+            </div>
+            <div class="step-card">
+                <h3><span>✅</span> 判断结束</h3>
+                <p>如果信息足够则生成回答，否则继续循环检索</p>
+                <div class="step-code">if sufficient: 生成回答<br>else: 继续检索</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

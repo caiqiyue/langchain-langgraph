@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Native RAG 核心流程</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: "PingFang SC", "Microsoft YaHei", sans-serif; background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); min-height: 100vh; padding: 40px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { text-align: center; color: #065f46; font-size: 36px; margin-bottom: 40px; }
+        .phase { background: white; border-radius: 16px; padding: 30px; margin-bottom: 30px; box-shadow: 0 6px 25px rgba(0,0,0,0.08); }
+        .phase-title { color: #065f46; font-size: 24px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .steps { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .step { background: #f0fdf4; border-radius: 8px; padding: 10px 15px; font-size: 14px; color: #166534; }
+        .step-arrow { color: #22c55e; font-size: 20px; }
+        .vs-lLm { text-align: center; margin: 30px 0; padding: 20px; background: white; border-radius: 12px; }
+        .vs-lLm h2 { color: #065f46; margin-bottom: 15px; }
+        .comparison { display: flex; justify-content: center; gap: 40px; }
+        .comparison-item { text-align: center; }
+        .comparison-item h3 { font-size: 18px; margin-bottom: 10px; }
+        .comparison-item.llm h3 { color: #ef4444; }
+        .comparison-item.rag h3 { color: #22c55e; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Native RAG 核心流程</h1>
+        <div class="phase">
+            <div class="phase-title">📚 阶段一：知识库构建（离线）</div>
+            <div class="steps">
+                <div class="step">1. 数据接入</div>
+                <span class="step-arrow">→</span>
+                <div class="step">2. 文档解析</div>
+                <span class="step-arrow">→</span>
+                <div class="step">3. 文档切分</div>
+                <span class="step-arrow">→</span>
+                <div class="step">4. 向量化</div>
+                <span class="step-arrow">→</span>
+                <div class="step">5. 存储</div>
+            </div>
+        </div>
+        <div class="phase">
+            <div class="phase-title">❓ 阶段二：问答（在线）</div>
+            <div class="steps">
+                <div class="step">1. 用户提问</div>
+                <span class="step-arrow">→</span>
+                <div class="step">2. 问题向量化</div>
+                <span class="step-arrow">→</span>
+                <div class="step">3. 相似度检索</div>
+                <span class="step-arrow">→</span>
+                <div class="step">4. 构建增强提示</div>
+                <span class="step-arrow">→</span>
+                <div class="step">5. LLM 生成</div>
+            </div>
+        </div>
+        <div class="vs-lLm">
+            <h2>RAG vs 普通 LLM</h2>
+            <div class="comparison">
+                <div class="comparison-item llm">
+                    <h3>普通 LLM</h3>
+                    <p style="color:#64748b;">仅依赖训练数据<br>无法获取实时信息<br>幻觉问题较严重</p>
+                </div>
+                <div style="font-size:30px; color:#cbd5e1; align-self:center;">vs</div>
+                <div class="comparison-item rag">
+                    <h3>RAG</h3>
+                    <p style="color:#64748b;">训练数据 + 知识库<br>可检索实时信息<br>通过检索减少幻觉</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

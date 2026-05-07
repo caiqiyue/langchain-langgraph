@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Message 消息类型详解</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #fdf4ff 0%, #fae8ff 100%);
+            min-height: 100vh;
+            padding: 40px;
+        }
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #581c87;
+            font-size: 34px;
+            margin-bottom: 40px;
+            font-weight: 600;
+        }
+        .messages-flow {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .msg-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px 30px;
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            position: relative;
+        }
+        .msg-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            flex-shrink: 0;
+        }
+        .icon-system { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+        .icon-developer { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); }
+        .icon-user { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
+        .icon-assistant { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .icon-tool { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
+        .msg-content {
+            flex: 1;
+        }
+        .msg-role {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 5px;
+        }
+        .msg-desc {
+            font-size: 14px;
+            color: #64748b;
+            line-height: 1.5;
+        }
+        .msg-code {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-family: Monaco, monospace;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+        .priority-note {
+            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+            color: white;
+            padding: 25px 35px;
+            border-radius: 16px;
+            margin-top: 20px;
+        }
+        .priority-note h3 {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        .priority-list {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+        }
+        .priority-item {
+            text-align: center;
+            padding: 15px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 10px;
+        }
+        .priority-num {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        .priority-name {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Message 消息类型详解</h1>
+
+        <div class="messages-flow">
+            <div class="msg-card">
+                <div class="msg-icon icon-system">⚙️</div>
+                <div class="msg-content">
+                    <div class="msg-role">SystemMessage — 系统消息</div>
+                    <div class="msg-desc">设定模型的身份、风格、规则，是"最高优先级"的指令</div>
+                </div>
+                <div class="msg-code">SystemMessage(content="你是专家")</div>
+            </div>
+
+            <div class="msg-card">
+                <div class="msg-icon icon-developer">👨‍💻</div>
+                <div class="msg-content">
+                    <div class="msg-role">Developer Message</div>
+                    <div class="msg-desc">开发者提示，模型的功能逻辑 / 工程约束（OpenAI 新增 role）</div>
+                </div>
+                <div class="msg-code">{"role": "developer", ...}</div>
+            </div>
+
+            <div class="msg-card">
+                <div class="msg-icon icon-user">👤</div>
+                <div class="msg-content">
+                    <div class="msg-role">HumanMessage — 用户消息</div>
+                    <div class="msg-desc">表示用户提问内容，是本轮对话的主体输入</div>
+                </div>
+                <div class="msg-code">HumanMessage(content="问题")</div>
+            </div>
+
+            <div class="msg-card">
+                <div class="msg-icon icon-assistant">🤖</div>
+                <div class="msg-content">
+                    <div class="msg-role">AIMessage — 助手消息</div>
+                    <div class="msg-desc">表示模型历史回答，有助于形成上下文记忆</div>
+                </div>
+                <div class="msg-code">AIMessage(content="回复")</div>
+            </div>
+
+            <div class="msg-card">
+                <div class="msg-icon icon-tool">🔧</div>
+                <div class="msg-content">
+                    <div class="msg-role">ToolMessage — 工具消息</div>
+                    <div class="msg-desc">工具调用结果（用于 Agent 场景），传递工具执行后的返回值</div>
+                </div>
+                <div class="msg-code">ToolMessage(content="结果")</div>
+            </div>
+        </div>
+
+        <div class="priority-note">
+            <h3>📌 消息执行顺序与优先级（非常重要）</h3>
+            <p style="font-size: 14px; opacity: 0.9; margin-bottom: 15px;">LLM 按以下顺序解析消息，模型永远会参考全部 messages 才得出最终输出</p>
+            <div class="priority-list">
+                <div class="priority-item">
+                    <div class="priority-num">1</div>
+                    <div class="priority-name">system<br>最高优先级</div>
+                </div>
+                <div class="priority-item">
+                    <div class="priority-num">2</div>
+                    <div class="priority-name">developer<br>功能逻辑</div>
+                </div>
+                <div class="priority-item">
+                    <div class="priority-num">3</div>
+                    <div class="priority-name">user<br>当前输入</div>
+                </div>
+                <div class="priority-item">
+                    <div class="priority-num">4</div>
+                    <div class="priority-name">assistant<br>历史对话</div>
+                </div>
+                <div class="priority-item">
+                    <div class="priority-num">5</div>
+                    <div class="priority-name">tool<br>工具调用</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

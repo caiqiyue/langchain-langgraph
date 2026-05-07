@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Agent Systems 多代理协作架构图</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            color: #fff;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #00d4ff;
+            margin-bottom: 30px;
+            font-weight: 300;
+        }
+        .mermaid {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 8px;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Multi-Agent Systems 多代理协作架构图</h1>
+
+        <div class="mermaid">
+graph TB
+    subgraph ParentGraph["父图 (Parent Graph)"]
+        P1["用户输入<br/>user_input"]
+        PN1["父图节点1<br/>parent_node"]
+        PN2["子图节点<br/>subgraph"]
+        P2["最终答案<br/>final_answer"]
+    end
+
+    subgraph SubGraph["子图 (Sub Graph)"]
+        S1["子图节点1<br/>subgraph_node_1"]
+        S2["子图节点2<br/>subgraph_node_2"]
+    end
+
+    P1 --> PN1
+    PN1 --> PN2
+    PN2 --> P2
+    PN2 --> S1
+    S1 --> S2
+    S2 -.->|"更新 final_answer"| PN2
+
+    style ParentGraph fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    style SubGraph fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    style P1 fill:#4caf50,stroke:#2e7d32,color:#fff
+    style PN1 fill:#2196f3,stroke:#1565c0,color:#fff
+    style PN2 fill:#9c27b0,stroke:#6a1b9a,color:#fff
+    style P2 fill:#ff5722,stroke:#e64a19,color:#fff
+    style S1 fill:#ff9800,stroke:#f57c00,color:#fff
+    style S2 fill:#ffb74d,stroke:#ffa726,color:#fff
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: #4caf50;"></div>
+                <span>用户输入</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #2196f3;"></div>
+                <span>父图节点</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #9c27b0;"></div>
+                <span>子图入口</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #ff9800;"></div>
+                <span>子图节点</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #ff5722;"></div>
+                <span>最终输出</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'base',
+            themeVariables: {
+                primaryColor: '#e3f2fd',
+                primaryTextColor: '#000',
+                primaryBorderColor: '#1976d2',
+                lineColor: '#333',
+                secondaryColor: '#fff3e0',
+                tertiaryColor: '#f5f5f5'
+            }
+        });
+    </script>
+</body>
+</html>

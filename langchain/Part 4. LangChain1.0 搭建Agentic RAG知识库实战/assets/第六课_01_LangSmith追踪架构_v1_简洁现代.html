@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LangSmith 追踪架构 - 简洁现代</title>
+    <style>
+        /* ========================================
+           设计系统
+           主色：橙色系 (#ea580c, #f97316, #fb923c)
+           风格：简洁现代、树状层级
+           ======================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container { max-width: 1100px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 50px; }
+        h1 { color: #7c2d12; font-size: 38px; margin-bottom: 15px; }
+        .subtitle { color: #ea580c; font-size: 18px; }
+
+        /* 层级树 */
+        .hierarchy {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+        }
+
+        /* 项目层 */
+        .project-node {
+            background: linear-gradient(135deg, #ea580c, #dc2626);
+            border-radius: 20px;
+            padding: 25px 40px;
+            color: white;
+            text-align: center;
+            box-shadow: 0 10px 35px rgba(234, 88, 12, 0.35);
+            min-width: 280px;
+        }
+        .project-icon { font-size: 36px; margin-bottom: 10px; }
+        .project-name { font-size: 22px; font-weight: 700; }
+        .project-desc { font-size: 13px; opacity: 0.9; margin-top: 5px; }
+
+        /* 连接线 */
+        .tree-line {
+            width: 4px;
+            height: 40px;
+            background: linear-gradient(to bottom, #fb923c, #fdba74);
+            border-radius: 2px;
+        }
+
+        /* Trace 层 */
+        .trace-row {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+        .trace-node {
+            background: white;
+            border-radius: 16px;
+            padding: 20px 25px;
+            box-shadow: 0 6px 25px rgba(0,0,0,0.1);
+            border-left: 5px solid #f97316;
+            min-width: 220px;
+            flex: 1;
+            max-width: 300px;
+        }
+        .trace-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .trace-icon { font-size: 24px; }
+        .trace-title { font-size: 17px; font-weight: 700; color: #7c2d12; }
+        .trace-desc { font-size: 13px; color: #78716c; line-height: 1.6; }
+        .trace-meta {
+            margin-top: 12px;
+            padding: 10px 12px;
+            background: #fff7ed;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #c2410c;
+        }
+
+        /* Run 层 */
+        .run-section {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 6px 25px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 800px;
+        }
+        .run-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #ffedd5;
+        }
+        .run-icon { font-size: 26px; }
+        .run-title { font-size: 19px; font-weight: 700; color: #7c2d12; }
+
+        .run-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+        }
+        .run-item {
+            background: #fff7ed;
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .run-badge {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        .run-badge.llm { background: linear-gradient(135deg, #a78bfa, #8b5cf6); }
+        .run-badge.tool { background: linear-gradient(135deg, #6ee7b7, #34d399); }
+        .run-badge.chain { background: linear-gradient(135deg, #67e8f9, #22d3ee); }
+        .run-badge.agent { background: linear-gradient(135deg, #fca5a5, #f87171); }
+
+        .run-name { font-size: 14px; font-weight: 600; color: #7c2d12; }
+        .run-type { font-size: 11px; color: #78716c; }
+
+        /* Feedback */
+        .feedback-section {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border-radius: 16px;
+            padding: 20px 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border: 2px solid #fbbf24;
+        }
+        .feedback-icon { font-size: 28px; }
+        .feedback-content { flex: 1; }
+        .feedback-title { font-size: 16px; font-weight: 700; color: #92400e; }
+        .feedback-desc { font-size: 13px; color: #b45309; }
+
+        /* Metadata */
+        .metadata-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-top: 15px;
+        }
+        .meta-chip {
+            background: white;
+            border-radius: 10px;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            color: #78716c;
+            border: 1px solid #fed7aa;
+        }
+        .meta-icon { font-size: 16px; }
+
+        /* 总结 */
+        .summary-note {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 6px 25px rgba(0,0,0,0.1);
+            margin-top: 20px;
+            border-top: 4px solid #fb923c;
+        }
+        .summary-title { font-size: 18px; font-weight: 700; color: #7c2d12; margin-bottom: 10px; }
+        .summary-text { font-size: 14px; color: #78716c; line-height: 1.7; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>LangSmith 追踪架构</h1>
+            <p class="subtitle">Project → Trace → Run → Feedback</p>
+        </header>
+
+        <div class="hierarchy">
+            <!-- Project 层 -->
+            <div class="project-node">
+                <div class="project-icon">📊</div>
+                <div class="project-name">Project</div>
+                <div class="project-desc">Agentic_RAG_Demo</div>
+            </div>
+
+            <div class="tree-line"></div>
+
+            <!-- Trace 层 -->
+            <div class="trace-row">
+                <div class="trace-node">
+                    <div class="trace-header">
+                        <span class="trace-icon">🔍</span>
+                        <span class="trace-title">Trace #001</span>
+                    </div>
+                    <div class="trace-desc">用户查询：诺贝尔物理学奖得主</div>
+                    <div class="trace-meta">⏱ 2.3s · 📝 1.2K tokens</div>
+                </div>
+                <div class="trace-node">
+                    <div class="trace-header">
+                        <span class="trace-icon">🔍</span>
+                        <span class="trace-title">Trace #002</span>
+                    </div>
+                    <div class="trace-desc">用户查询：2024年AI进展</div>
+                    <div class="trace-meta">⏱ 3.1s · 📝 2.1K tokens</div>
+                </div>
+            </div>
+
+            <div class="tree-line"></div>
+
+            <!-- Run 层 -->
+            <div class="run-section">
+                <div class="run-header">
+                    <span class="run-icon">🏃</span>
+                    <span class="run-title">Runs in Trace #001</span>
+                </div>
+                <div class="run-list">
+                    <div class="run-item">
+                        <div class="run-badge llm">🤖</div>
+                        <div>
+                            <div class="run-name">LLM Run</div>
+                            <div class="run-type">ChatDeepSeek</div>
+                        </div>
+                    </div>
+                    <div class="run-item">
+                        <div class="run-badge tool">🔍</div>
+                        <div>
+                            <div class="run-name">Tool Run</div>
+                            <div class="run-type">TavilySearch</div>
+                        </div>
+                    </div>
+                    <div class="run-item">
+                        <div class="run-badge chain">🔗</div>
+                        <div>
+                            <div class="run-name">Chain Run</div>
+                            <div class="run-type">RetrievalQA</div>
+                        </div>
+                    </div>
+                    <div class="run-item">
+                        <div class="run-badge agent">🤖</div>
+                        <div>
+                            <div class="run-name">Agent Run</div>
+                            <div class="run-type">create_agent</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tree-line"></div>
+
+            <!-- Feedback -->
+            <div class="feedback-section">
+                <span class="feedback-icon">💬</span>
+                <div class="feedback-content">
+                    <div class="feedback-title">Feedback</div>
+                    <div class="feedback-desc">用户评分：5/5 · 标签：answer_quality</div>
+                </div>
+            </div>
+
+            <!-- Metadata -->
+            <div class="run-section">
+                <div class="run-header">
+                    <span class="run-icon">📋</span>
+                    <span class="run-title">Metadata</span>
+                </div>
+                <div class="metadata-grid">
+                    <div class="meta-chip">
+                        <span class="meta-icon">🏷️</span>
+                        <span>version: v1.0</span>
+                    </div>
+                    <div class="meta-chip">
+                        <span class="meta-icon">🌍</span>
+                        <span>env: production</span>
+                    </div>
+                    <div class="meta-chip">
+                        <span class="meta-icon">👤</span>
+                        <span>user_id: xxx</span>
+                    </div>
+                    <div class="meta-chip">
+                        <span class="meta-icon">📅</span>
+                        <span>2024-01-15</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 总结 -->
+            <div class="summary-note">
+                <div class="summary-title">层级关系总结</div>
+                <div class="summary-text">
+                    Project 包含多个 Trace（完整调用链）<br>
+                    每个 Trace 包含多个 Run（单个执行节点）<br>
+                    每个 Run 可附加 Feedback（质量评估）和 Metadata（元数据）
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

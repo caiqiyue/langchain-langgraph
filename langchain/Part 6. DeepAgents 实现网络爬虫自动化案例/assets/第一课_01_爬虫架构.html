@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>爬虫 Agent 系统架构</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: "PingFang SC", "Microsoft YaHei", sans-serif; background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); min-height: 100vh; padding: 40px; }
+        .container { max-width: 1100px; margin: 0 auto; }
+        h1 { text-align: center; color: #991b1b; font-size: 36px; margin-bottom: 40px; }
+        .main-arch { background: white; border-radius: 20px; padding: 30px; box-shadow: 0 8px 30px rgba(0,0,0,0.1); margin-bottom: 30px; }
+        .arch-title { color: #991b1b; font-size: 22px; margin-bottom: 20px; text-align: center; }
+        .arch-flow { display: flex; align-items: center; justify-content: center; gap: 15px; flex-wrap: wrap; }
+        .arch-box { background: #fef2f2; border-radius: 12px; padding: 20px; text-align: center; min-width: 150px; }
+        .arch-box.core { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; }
+        .arch-box.tools { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: white; }
+        .arch-box.sandbox { background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); color: white; }
+        .arch-name { font-size: 16px; font-weight: 600; margin-bottom: 5px; }
+        .arch-desc { font-size: 12px; opacity: 0.9; }
+        .arrow { color: #fca5a5; font-size: 24px; }
+        .steps-section { background: white; border-radius: 16px; padding: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+        .steps-title { color: #991b1b; font-size: 20px; margin-bottom: 20px; }
+        .steps-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
+        .step-item { background: #fef2f2; border-radius: 8px; padding: 12px; text-align: center; }
+        .step-num { font-size: 20px; font-weight: bold; color: #ef4444; }
+        .step-name { font-size: 13px; color: #1e293b; margin-top: 5px; }
+        @media (max-width: 800px) { .steps-grid { grid-template-columns: repeat(2, 1fr); } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🕷️ 爬虫 Agent 系统架构</h1>
+        <div class="main-arch">
+            <div class="arch-title">系统核心组件</div>
+            <div class="arch-flow">
+                <div class="arch-box core">
+                    <div class="arch-name">Agent Core</div>
+                    <div class="arch-desc">基于 LangGraph</div>
+                </div>
+                <span class="arrow">→</span>
+                <div class="arch-box tools">
+                    <div class="arch-name">Tools</div>
+                    <div class="arch-desc">4 个子 Agent</div>
+                </div>
+                <span class="arrow">→</span>
+                <div class="arch-box sandbox">
+                    <div class="arch-name">Sandbox</div>
+                    <div class="arch-desc">Docker 隔离</div>
+                </div>
+            </div>
+        </div>
+        <div class="steps-section">
+            <div class="steps-title">8 步执行流程</div>
+            <div class="steps-grid">
+                <div class="step-item"><div class="step-num">1</div><div class="step-name">环境启动</div></div>
+                <div class="step-item"><div class="step-num">2</div><div class="step-name">任务接收</div></div>
+                <div class="step-item"><div class="step-num">3</div><div class="step-name">网页获取</div></div>
+                <div class="step-item"><div class="step-num">4</div><div class="step-name">结构分析</div></div>
+                <div class="step-item"><div class="step-num">5</div><div class="step-name">代码生成</div></div>
+                <div class="step-item"><div class="step-num">6</div><div class="step-name">沙箱执行</div></div>
+                <div class="step-item"><div class="step-num">7</div><div class="step-name">数据处理</div></div>
+                <div class="step-item"><div class="step-num">8</div><div class="step-name">结果反馈</div></div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

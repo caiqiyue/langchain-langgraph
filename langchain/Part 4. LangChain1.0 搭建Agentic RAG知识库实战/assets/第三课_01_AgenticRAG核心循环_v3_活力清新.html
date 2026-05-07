@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentic RAG 核心循环 - 活力清新</title>
+    <style>
+        /* ========================================
+           设计系统
+           主色：马卡龙糖果色
+           风格：活力清新、圆润胖、现代可爱
+           ======================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #fdf2f8;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+            background: linear-gradient(135deg, #fce7f3, #fbcfe8, #f9a8d4);
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 0 10px 40px rgba(236, 72, 153, 0.15);
+        }
+        h1 {
+            background: linear-gradient(135deg, #be185d, #db2777);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 44px;
+            margin-bottom: 15px;
+        }
+        .subtitle { color: #be185d; font-size: 20px; }
+
+        /* 横向流程 */
+        .candy-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 50px;
+        }
+        .candy-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        .candy-circle {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 35px rgba(0,0,0,0.15);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: pointer;
+        }
+        .candy-circle:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
+        .candy-circle.pink { background: linear-gradient(135deg, #fbcfe8, #f472b6); }
+        .candy-circle.blue { background: linear-gradient(135deg, #bae6fd, #38bdf8); }
+        .candy-circle.green { background: linear-gradient(135deg, #bbf7d0, #4ade80); }
+        .candy-circle.orange { background: linear-gradient(135deg, #fed7aa, #fb923c); }
+
+        .candy-num {
+            font-size: 13px;
+            font-weight: 700;
+            opacity: 0.8;
+        }
+        .candy-icon { font-size: 38px; margin-bottom: 5px; }
+        .candy-label {
+            font-size: 16px;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .candy-arrow {
+            font-size: 36px;
+            color: #f9a8d4;
+            animation: bounce 1.5s ease-in-out infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateX(0) rotate(0deg); }
+            50% { transform: translateX(5px) rotate(5deg); }
+        }
+
+        /* 分支判断 */
+        .branch-decision {
+            background: white;
+            border-radius: 20px;
+            padding: 20px 30px;
+            box-shadow: 0 6px 25px rgba(0,0,0,0.1);
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        .branch-title {
+            font-size: 18px;
+            color: #be185d;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+        .branch-options {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+        }
+        .branch-opt {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+        }
+        .branch-opt.yes { color: #059669; }
+        .branch-opt.no { color: #dc2626; }
+        .branch-arrow {
+            font-size: 24px;
+        }
+
+        /* 卡片网格 */
+        .candy-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+        }
+        .candy-card {
+            background: white;
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: 0 6px 25px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+        }
+        .candy-card:hover {
+            transform: translateY(-5px);
+            border-color: #f9a8d4;
+        }
+        .candy-card-icon { font-size: 40px; margin-bottom: 15px; }
+        .candy-card h3 { font-size: 18px; color: #1c1917; margin-bottom: 10px; }
+        .candy-card p { font-size: 14px; color: #78716c; line-height: 1.7; }
+        .candy-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 12px;
+        }
+        .candy-badge.pink { background: #fce7f3; color: #be185d; }
+        .candy-badge.blue { background: #e0f2fe; color: #0284c7; }
+        .candy-badge.green { background: #dcfce7; color: #15803d; }
+        .candy-badge.orange { background: #ffedd5; color: #c2410c; }
+
+        /* 迭代提示 */
+        .loop-hint {
+            text-align: center;
+            margin-top: 40px;
+            padding: 25px;
+            background: linear-gradient(135deg, #fce7f3, #fbcfe8);
+            border-radius: 20px;
+            font-size: 18px;
+            color: #be185d;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Agentic RAG 核心循环</h1>
+            <p class="subtitle">智能迭代问答流程</p>
+        </header>
+
+        <div class="candy-flow">
+            <div class="candy-step">
+                <div class="candy-circle pink">
+                    <span class="candy-num">第一步</span>
+                    <span class="candy-icon">🧠</span>
+                    <span class="candy-label">LLM 决策</span>
+                </div>
+            </div>
+            <span class="candy-arrow">→</span>
+            <div class="candy-step">
+                <div class="candy-circle blue">
+                    <span class="candy-num">第二步</span>
+                    <span class="candy-icon">🔍</span>
+                    <span class="candy-label">执行检索</span>
+                </div>
+            </div>
+            <span class="candy-arrow">→</span>
+            <div class="candy-step">
+                <div class="candy-circle green">
+                    <span class="candy-num">第三步</span>
+                    <span class="candy-icon">📊</span>
+                    <span class="candy-label">评估结果</span>
+                </div>
+            </div>
+            <span class="candy-arrow">→</span>
+            <div class="candy-step">
+                <div class="candy-circle orange">
+                    <span class="candy-num">第四步</span>
+                    <span class="candy-icon">❓</span>
+                    <span class="candy-label">判断结束</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="branch-decision">
+            <div class="branch-title">🔄 循环判断</div>
+            <div class="branch-options">
+                <div class="branch-opt yes">
+                    <span class="branch-arrow">✅</span>
+                    <span>信息足够 → 生成回答</span>
+                </div>
+                <div class="branch-opt no">
+                    <span class="branch-arrow">↩️</span>
+                    <span>信息不足 → 继续检索</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="candy-cards">
+            <div class="candy-card">
+                <div class="candy-card-icon">🧠</div>
+                <h3>LLM 决策 (Thought)</h3>
+                <p>Agent 分析用户问题，决定是否需要检索以及使用什么工具</p>
+                <span class="candy-badge pink">智能决策</span>
+            </div>
+            <div class="candy-card">
+                <div class="candy-card-icon">🔍</div>
+                <h3>执行检索 (Action)</h3>
+                <p>调用 RAG 工具从向量数据库获取相关文档片段</p>
+                <span class="candy-badge blue">工具调用</span>
+            </div>
+            <div class="candy-card">
+                <div class="candy-card-icon">📊</div>
+                <h3>观察评估 (Observation)</h3>
+                <p>将检索结果反馈给 LLM，评估信息是否足够回答问题</p>
+                <span class="candy-badge green">结果评估</span>
+            </div>
+            <div class="candy-card">
+                <div class="candy-card-icon">✅</div>
+                <h3>判断结束</h3>
+                <p>如果信息足够则生成回答，否则继续循环检索</p>
+                <span class="candy-badge orange">迭代控制</span>
+            </div>
+        </div>
+
+        <div class="loop-hint">
+            🔄 循环迭代直到获得足够信息或达到最大迭代次数（通常 3-5 次）
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LangGraph 记忆机制概览</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 40px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 {
+            text-align: center;
+            color: #fff;
+            font-size: 36px;
+            margin-bottom: 40px;
+            font-weight: 600;
+        }
+        .memory-architecture {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        .memory-box {
+            flex: 1;
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .memory-box h2 {
+            color: #fff;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        .memory-box.short-term { border-top: 4px solid #4facfe; }
+        .memory-box.long-term { border-top: 4px solid #43e97b; }
+        .memory-box .icon { font-size: 48px; margin-bottom: 15px; }
+        .memory-box p {
+            color: rgba(255,255,255,0.8);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .component-box {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 3px solid #667eea;
+        }
+        .component-name {
+            color: #667eea;
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+        .component-desc {
+            color: rgba(255,255,255,0.7);
+            font-size: 13px;
+        }
+        .arrow {
+            font-size: 36px;
+            color: #fff;
+            flex-shrink: 0;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .feature-card {
+            background: rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .feature-card h3 {
+            color: #4facfe;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        .feature-card p {
+            color: rgba(255,255,255,0.7);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>LangGraph 记忆机制概览</h1>
+        
+        <div class="memory-architecture">
+            <div class="memory-box short-term">
+                <div class="icon">⚡</div>
+                <h2>短期记忆</h2>
+                <p>存储在缓存、内存或程序运行过程中的状态信息</p>
+                <div class="component-box">
+                    <div class="component-name">Checkpointer</div>
+                    <div class="component-desc">在单个对话线程中保存和恢复图状态</div>
+                </div>
+                <div class="component-box">
+                    <div class="component-name">State</div>
+                    <div class="component-desc">管理运行中的状态信息传递</div>
+                </div>
+            </div>
+            
+            <div class="arrow">⟷</div>
+            
+            <div class="memory-box long-term">
+                <div class="icon">💾</div>
+                <h2>长期记忆</h2>
+                <p>将重要数据持久化保存在存储容器中</p>
+                <div class="component-box">
+                    <div class="component-name">Store</div>
+                    <div class="component-desc">跨会话持久化，支持在任何线程中调用</div>
+                </div>
+                <div class="component-box">
+                    <div class="component-name">InMemoryStore</div>
+                    <div class="component-desc">进程内存储用户相关信息</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <h3>线程隔离</h3>
+                <p>每个线程(thread_id)有独立的状态空间，不同线程间互不干扰</p>
+            </div>
+            <div class="feature-card">
+                <h3>状态恢复</h3>
+                <p>通过checkpointer可以在任意时刻暂停和恢复图的执行状态</p>
+            </div>
+            <div class="feature-card">
+                <h3>持久化存储</h3>
+                <p>MemorySaver用于内存存储，SqliteSaver用于持久化存储</p>
+            </div>
+            <div class="feature-card">
+                <h3>跨会话记忆</h3>
+                <p>Store支持在不同线程间共享信息，实现真正的长期记忆</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

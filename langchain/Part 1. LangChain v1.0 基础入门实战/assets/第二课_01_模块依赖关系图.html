@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LangChain 1.0 模块依赖关系</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            min-height: 100vh;
+            padding: 40px;
+        }
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #14532d;
+            font-size: 34px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        .subtitle {
+            text-align: center;
+            color: #4d7c0f;
+            font-size: 15px;
+            margin-bottom: 40px;
+        }
+        .packages {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0;
+        }
+        .package {
+            background: white;
+            border-radius: 16px;
+            padding: 25px 40px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            position: relative;
+            z-index: 1;
+        }
+        .pkg-langchain-core {
+            width: 400px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .pkg-langchain {
+            width: 380px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+        .pkg-community {
+            width: 360px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+        .pkg-vendor {
+            width: 340px;
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+        }
+        .pkg-classic {
+            width: 320px;
+            background: linear-gradient(135deg, #a8a29e 0%, #78716c 100%);
+            color: white;
+        }
+        .package-name {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .package-role {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 12px;
+        }
+        .package-desc {
+            font-size: 13px;
+            opacity: 0.8;
+            line-height: 1.5;
+        }
+        .arrow-down {
+            font-size: 28px;
+            color: #9ca3af;
+            margin: 10px 0;
+        }
+        .deps-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 12px;
+        }
+        .dep-tag {
+            background: rgba(255,255,255,0.25);
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>LangChain 1.0 模块依赖关系</h1>
+        <p class="subtitle">核心更稳定、可维护；集成可按需安装</p>
+
+        <div class="packages">
+            <div class="package pkg-langchain-core">
+                <div class="package-name">langchain-core</div>
+                <div class="package-role">核心抽象层和 LCEL</div>
+                <div class="package-desc">定义所有组件的标准接口和基本抽象<br>不包含第三方集成，最小公共底座</div>
+                <div class="deps-list">
+                    <span class="dep-tag">LLM/ChatModel 抽象</span>
+                    <span class="dep-tag">Prompt 抽象</span>
+                    <span class="dep-tag">消息格式</span>
+                    <span class="dep-tag">LCEL</span>
+                </div>
+            </div>
+
+            <div class="arrow-down">↓</div>
+
+            <div class="package pkg-langchain">
+                <div class="package-name">langchain</div>
+                <div class="package-role">应用认知架构（主包）</div>
+                <div class="package-desc">构建 LLM 应用的高阶逻辑<br>Agents、Chains、通用检索策略</div>
+                <div class="deps-list">
+                    <span class="dep-tag">create_agent()</span>
+                    <span class="dep-tag">AgentState</span>
+                </div>
+            </div>
+
+            <div class="arrow-down">↓</div>
+
+            <div class="package pkg-community">
+                <div class="package-name">langchain-community</div>
+                <div class="package-role">社区第三方集成</div>
+                <div class="package-desc">非核心/非流行的第三方集成<br>文档加载器、向量存储、其他 LLM</div>
+                <div class="deps-list">
+                    <span class="dep-tag">Document Loaders</span>
+                    <span class="dep-tag">Vector Stores</span>
+                    <span class="dep-tag">Toolkits</span>
+                </div>
+            </div>
+
+            <div class="arrow-down">↓</div>
+
+            <div class="package pkg-vendor">
+                <div class="package-name">langchain-openai / deepseek / ollama</div>
+                <div class="package-role">厂商深度集成包</div>
+                <div class="package-desc">官方深度集成特定 LLM 提供商<br>更新频繁，功能最全</div>
+                <div class="deps-list">
+                    <span class="dep-tag">ChatOpenAI</span>
+                    <span class="dep-tag">ChatTongyi</span>
+                    <span class="dep-tag">ChatOllama</span>
+                </div>
+            </div>
+
+            <div class="arrow-down">↓</div>
+
+            <div class="package pkg-classic">
+                <div class="package-name">langchain-classic</div>
+                <div class="package-role">旧版本兼容</div>
+                <div class="package-desc">已弃用的旧版功能<br>LLMChain、Legacy Chains</div>
+                <div class="deps-list">
+                    <span class="dep-tag">AgentExecutor</span>
+                    <span class="dep-tag">v0.x API</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>批处理 vs 流式传输 vs 异步并发</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            min-height: 100vh;
+            padding: 40px;
+        }
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #064e3b;
+            font-size: 32px;
+            margin-bottom: 40px;
+            font-weight: 600;
+        }
+        .methods-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-bottom: 35px;
+        }
+        .method-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+        }
+        .method-header {
+            padding: 25px;
+            text-align: center;
+        }
+        .header-batch { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
+        .header-stream { background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); }
+        .header-async { background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); }
+        .method-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+        .method-name {
+            font-size: 24px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 5px;
+        }
+        .method-eng {
+            font-size: 13px;
+            color: rgba(255,255,255,0.85);
+        }
+        .method-body {
+            padding: 25px;
+        }
+        .method-desc {
+            font-size: 14px;
+            color: #475569;
+            line-height: 1.7;
+            margin-bottom: 18px;
+        }
+        .method-code {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: Monaco, monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .feature-table {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+        }
+        .feature-table h3 {
+            color: #064e3b;
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 14px 18px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        th {
+            background: #f8fafc;
+            font-size: 14px;
+            color: #475569;
+            font-weight: 500;
+        }
+        td {
+            font-size: 14px;
+            color: #334155;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .badge-sync { background: #dbeafe; color: #1d4ed8; }
+        .badge-async { background: #dcfce7; color: #15803d; }
+        .badge-stream { background: #fae8ff; color: #a21caf; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>批处理 vs 流式传输 vs 异步并发</h1>
+
+        <div class="methods-grid">
+            <div class="method-card">
+                <div class="method-header header-batch">
+                    <div class="method-icon">📦</div>
+                    <div class="method-name">batch()</div>
+                    <div class="method-eng">Batch Processing</div>
+                </div>
+                <div class="method-body">
+                    <div class="method-desc">
+                        同步批量调用，一次性提交多个请求，模型并行处理后返回所有结果
+                    </div>
+                    <div class="method-code">
+# 批量提交，同时处理
+responses = model.batch([
+    "问题1",
+    "问题2",
+    "问题3"
+])
+                    </div>
+                </div>
+            </div>
+
+            <div class="method-card">
+                <div class="method-header header-stream">
+                    <div class="method-icon">🌊</div>
+                    <div class="method-name">stream()</div>
+                    <div class="method-eng">Streaming Output</div>
+                </div>
+                <div class="method-body">
+                    <div class="method-desc">
+                        流式返回，逐块获取结果，像打字效果一样实时显示内容
+                    </div>
+                    <div class="method-code">
+# 逐块获取，实时显示
+for chunk in model.stream("长文本"):
+    print(chunk.content, end="")
+                    </div>
+                </div>
+            </div>
+
+            <div class="method-card">
+                <div class="method-header header-async">
+                    <div class="method-icon">⚡</div>
+                    <div class="method-name">abatch()</div>
+                    <div class="method-eng">Async Batch</div>
+                </div>
+                <div class="method-body">
+                    <div class="method-desc">
+                        异步批量并发处理，配合 RunnableConfig 控制并发数
+                    </div>
+                    <div class="method-code">
+config = RunnableConfig(max_concurrency=3)
+responses = await model.abatch(
+    [...], config=config
+)
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="feature-table">
+            <h3>📊 特性对比表</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>特性</th>
+                        <th>batch()</th>
+                        <th>stream()</th>
+                        <th>abatch()</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>执行方式</strong></td>
+                        <td><span class="badge badge-sync">同步</span></td>
+                        <td><span class="badge badge-stream">流式</span></td>
+                        <td><span class="badge badge-async">异步</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>返回时机</strong></td>
+                        <td>全部完成返回</td>
+                        <td>逐块返回</td>
+                        <td>全部完成返回</td>
+                    </tr>
+                    <tr>
+                        <td><strong>并发控制</strong></td>
+                        <td>无</td>
+                        <td>不适用</td>
+                        <td>max_concurrency</td>
+                    </tr>
+                    <tr>
+                        <td><strong>适用场景</strong></td>
+                        <td>文档摘要、批量问答</td>
+                        <td>聊天机器人、实时显示</td>
+                        <td>高并发生产环境</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

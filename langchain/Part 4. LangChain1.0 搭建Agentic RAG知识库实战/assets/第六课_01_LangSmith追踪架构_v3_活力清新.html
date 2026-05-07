@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LangSmith 追踪架构 - 活力清新</title>
+    <style>
+        /* ========================================
+           设计系统
+           主色：马卡龙橙色系
+           风格：活力清新、圆润可爱
+           ======================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #fefce8;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container { max-width: 1100px; margin: 0 auto; }
+        header {
+            text-align: center;
+            margin-bottom: 50px;
+            background: linear-gradient(135deg, #fef3c7, #fde68a, #fcd34d);
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 0 10px 40px rgba(245, 158, 11, 0.2);
+        }
+        h1 {
+            background: linear-gradient(135deg, #b45309, #d97706);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 44px;
+            margin-bottom: 15px;
+        }
+        .subtitle { color: #b45309; font-size: 20px; }
+
+        /* 树状结构 */
+        .candy-tree {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        /* 项目圆 */
+        .project-circle {
+            background: linear-gradient(135deg, #fb923c, #f97316);
+            border-radius: 50%;
+            width: 140px;
+            height: 140px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 10px 35px rgba(249, 115, 22, 0.35);
+        }
+        .project-icon { font-size: 36px; margin-bottom: 5px; }
+        .project-name { font-size: 18px; font-weight: 700; }
+
+        /* 圆点连接 */
+        .dot-line {
+            width: 4px;
+            height: 35px;
+            background: #fbbf24;
+            border-radius: 2px;
+        }
+
+        /* Trace 卡片 */
+        .trace-cards {
+            display: flex;
+            gap: 18px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .trace-bubble {
+            background: white;
+            border-radius: 20px;
+            padding: 20px 22px;
+            min-width: 200px;
+            flex: 1;
+            max-width: 260px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            border-top: 5px solid #fb923c;
+        }
+        .trace-bubble:hover { transform: translateY(-5px); }
+        .trace-head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .trace-emoji { font-size: 22px; }
+        .trace-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #7c2d12;
+        }
+        .trace-query {
+            font-size: 13px;
+            color: #78716c;
+            background: #fffbeb;
+            padding: 10px 12px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+        }
+        .trace-info {
+            display: flex;
+            gap: 12px;
+            font-size: 12px;
+            color: #ea580c;
+        }
+
+        /* Run 区域 */
+        .runs-zone {
+            background: white;
+            border-radius: 24px;
+            padding: 25px;
+            width: 100%;
+            max-width: 700px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        .runs-head {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .runs-icon { font-size: 24px; }
+        .runs-title { font-size: 18px; font-weight: 700; color: #7c2d12; }
+
+        .runs-bubbles {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .run-round {
+            background: #fffbeb;
+            border-radius: 16px;
+            padding: 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+        }
+        .run-round:hover { transform: scale(1.03); }
+        .run-av {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        .run-av.purple { background: linear-gradient(135deg, #ddd6fe, #a78bfa); }
+        .run-av.green { background: linear-gradient(135deg, #bbf7d0, #4ade80); }
+        .run-av.cyan { background: linear-gradient(135deg, #a5f3fc, #22d3ee); }
+        .run-av.pink { background: linear-gradient(135deg, #fbcfe8, #f472b6); }
+
+        .run-label { font-size: 14px; font-weight: 600; color: #7c2d12; }
+        .run-sub { font-size: 11px; color: #78716c; }
+
+        /* Feedback */
+        .feedback-round {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border-radius: 20px;
+            padding: 20px 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border: 2px solid #fbbf24;
+            width: 100%;
+            max-width: 350px;
+        }
+        .feedback-av { font-size: 28px; }
+        .feedback-msg { font-size: 15px; font-weight: 600; color: #92400e; }
+
+        /* Metadata */
+        .meta-pills {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .meta-pill {
+            background: white;
+            border-radius: 20px;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #78716c;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        .pill-icon { font-size: 14px; }
+
+        /* 总结 */
+        .summary-candy {
+            background: white;
+            border-radius: 24px;
+            padding: 28px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+            border-bottom: 4px solid #fbbf24;
+        }
+        .summary-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #7c2d12;
+            margin-bottom: 12px;
+        }
+        .summary-text {
+            font-size: 14px;
+            color: #78716c;
+            line-height: 1.8;
+        }
+
+        /* 装饰 */
+        .deco {
+            position: fixed;
+            border-radius: 50%;
+            opacity: 0.4;
+            z-index: -1;
+        }
+        .deco-1 { width: 200px; height: 200px; background: #fef3c7; top: -60px; right: -60px; }
+        .deco-2 { width: 150px; height: 150px; background: #fce7f3; bottom: 5%; left: -40px; }
+    </style>
+</head>
+<body>
+    <div class="deco deco-1"></div>
+    <div class="deco deco-2"></div>
+
+    <div class="container">
+        <header>
+            <h1>LangSmith 追踪架构</h1>
+            <p class="subtitle">可观测性平台核心概念</p>
+        </header>
+
+        <div class="candy-tree">
+            <!-- Project -->
+            <div class="project-circle">
+                <span class="project-icon">📊</span>
+                <span class="project-name">Project</span>
+            </div>
+
+            <div class="dot-line"></div>
+
+            <!-- Traces -->
+            <div class="trace-cards">
+                <div class="trace-bubble">
+                    <div class="trace-head">
+                        <span class="trace-emoji">🔍</span>
+                        <span class="trace-title">Trace #001</span>
+                    </div>
+                    <div class="trace-query">"诺贝尔物理学奖得主"</div>
+                    <div class="trace-info">
+                        <span>⏱ 2.3s</span>
+                        <span>📝 1.2K</span>
+                    </div>
+                </div>
+                <div class="trace-bubble">
+                    <div class="trace-head">
+                        <span class="trace-emoji">🔍</span>
+                        <span class="trace-title">Trace #002</span>
+                    </div>
+                    <div class="trace-query">"2024年AI进展"</div>
+                    <div class="trace-info">
+                        <span>⏱ 3.1s</span>
+                        <span>📝 2.1K</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dot-line"></div>
+
+            <!-- Runs -->
+            <div class="runs-zone">
+                <div class="runs-head">
+                    <span class="runs-icon">🏃</span>
+                    <span class="runs-title">Runs in Trace #001</span>
+                </div>
+                <div class="runs-bubbles">
+                    <div class="run-round">
+                        <div class="run-av purple">🤖</div>
+                        <div>
+                            <div class="run-label">LLM Run</div>
+                            <div class="run-sub">ChatDeepSeek</div>
+                        </div>
+                    </div>
+                    <div class="run-round">
+                        <div class="run-av green">🔍</div>
+                        <div>
+                            <div class="run-label">Tool Run</div>
+                            <div class="run-sub">TavilySearch</div>
+                        </div>
+                    </div>
+                    <div class="run-round">
+                        <div class="run-av cyan">🔗</div>
+                        <div>
+                            <div class="run-label">Chain Run</div>
+                            <div class="run-sub">RetrievalQA</div>
+                        </div>
+                    </div>
+                    <div class="run-round">
+                        <div class="run-av pink">🤖</div>
+                        <div>
+                            <div class="run-label">Agent Run</div>
+                            <div class="run-sub">create_agent</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dot-line"></div>
+
+            <!-- Feedback -->
+            <div class="feedback-round">
+                <span class="feedback-av">💬</span>
+                <span class="feedback-msg">评分 5/5 · 标签：回答质量好</span>
+            </div>
+
+            <!-- Metadata -->
+            <div class="runs-zone">
+                <div class="runs-head">
+                    <span class="runs-icon">📋</span>
+                    <span class="runs-title">Metadata</span>
+                </div>
+                <div class="meta-pills">
+                    <div class="meta-pill">
+                        <span class="pill-icon">🏷️</span>
+                        <span>version: v1.0</span>
+                    </div>
+                    <div class="meta-pill">
+                        <span class="pill-icon">🌍</span>
+                        <span>env: production</span>
+                    </div>
+                    <div class="meta-pill">
+                        <span class="pill-icon">👤</span>
+                        <span>user_id: xxx</span>
+                    </div>
+                    <div class="meta-pill">
+                        <span class="pill-icon">📅</span>
+                        <span>2024-01-15</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 总结 -->
+            <div class="summary-candy">
+                <div class="summary-title">🔑 层级关系</div>
+                <div class="summary-text">
+                    Project 包含多个 Trace<br>
+                    Trace 包含多个 Run<br>
+                    Run 可附加 Feedback 和 Metadata
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

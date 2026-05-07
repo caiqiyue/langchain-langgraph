@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>混合检索引擎架构 - 数据流</title>
+    <style>
+        /* ========================================
+           设计系统
+           主色：深色科技 (#0f172a, #1e293b, #334155)
+           风格：深色主题、数据流可视化
+           ======================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", "Consolas", monospace;
+            background: #0f172a;
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: #e2e8f0;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 50px; }
+        h1 {
+            color: #f8fafc;
+            font-size: 42px;
+            text-shadow: 0 0 40px rgba(20, 184, 166, 0.5);
+            margin-bottom: 15px;
+        }
+        .subtitle {
+            color: #14b8a6;
+            font-size: 18px;
+            font-family: "Consolas", monospace;
+        }
+
+        /* 数据流管道 */
+        .dataflow {
+            background: #1e293b;
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid #334155;
+            margin-bottom: 30px;
+        }
+        .dataflow-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #334155;
+        }
+        .dataflow-icon { font-size: 28px; }
+        .dataflow-title { font-size: 20px; font-weight: 700; color: #f8fafc; }
+
+        /* 并行管道 */
+        .pipeline-row {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .pipeline-track {
+            flex: 1;
+            min-width: 280px;
+            background: #0f172a;
+            border-radius: 16px;
+            padding: 25px;
+            border: 1px solid #334155;
+            position: relative;
+        }
+        .track-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .track-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        .track-icon.orange { background: linear-gradient(135deg, #f97316, #ea580c); }
+        .track-icon.blue { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+        .track-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #f8fafc;
+        }
+        .track-type {
+            font-size: 12px;
+            color: #64748b;
+            font-family: "Consolas", monospace;
+        }
+
+        .track-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .track-step {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            background: #1e293b;
+            border-radius: 10px;
+            font-size: 14px;
+            border-left: 3px solid;
+        }
+        .track-step:nth-child(1) { border-color: #f97316; }
+        .track-step:nth-child(2) { border-color: #f59e0b; }
+        .track-step:nth-child(3) { border-color: #eab308; }
+        .track-step.green { border-color: #22c55e !important; }
+        .track-step.blue { border-color: #3b82f6 !important; }
+        .track-step.purple { border-color: #8b5cf6 !important; }
+
+        .step-key {
+            font-family: "Consolas", monospace;
+            font-size: 12px;
+            color: #94a3b8;
+            background: #0f172a;
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+
+        /* 连接箭头 */
+        .connector {
+            text-align: center;
+            padding: 20px 0;
+            font-size: 36px;
+            color: #14b8a6;
+        }
+
+        /* 融合模块 */
+        .fusion-module {
+            background: linear-gradient(135deg, #134e4a, #0f766e);
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            border: 2px solid #14b8a6;
+            box-shadow: 0 0 30px rgba(20, 184, 166, 0.3);
+        }
+        .fusion-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #f8fafc;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        .fusion-formula {
+            background: #0f172a;
+            border-radius: 10px;
+            padding: 15px 30px;
+            font-family: "Consolas", monospace;
+            font-size: 18px;
+            color: #2dd4bf;
+            display: inline-block;
+        }
+        .fusion-desc {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #99f6e4;
+        }
+
+        /* 结果展示 */
+        .result-display {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 25px;
+            border: 1px solid #334155;
+            margin-top: 30px;
+        }
+        .result-header {
+            font-size: 16px;
+            color: #94a3b8;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .result-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .result-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 20px;
+            background: #0f172a;
+            border-radius: 10px;
+            border: 1px solid #334155;
+        }
+        .result-rank {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #334155;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        .result-row:first-child .result-rank {
+            background: linear-gradient(135deg, #f59e0b, #eab308);
+            color: #0f172a;
+        }
+        .result-doc {
+            flex: 1;
+            font-size: 15px;
+            color: #e2e8f0;
+        }
+        .result-score {
+            font-family: "Consolas", monospace;
+            font-size: 14px;
+            color: #14b8a6;
+            background: #134e4a;
+            padding: 4px 12px;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>HYBRID RETRIEVAL ENGINE</h1>
+            <p class="subtitle">BM25 + Vector Search → RRF Fusion → ReRank</p>
+        </header>
+
+        <div class="dataflow">
+            <div class="dataflow-header">
+                <span class="dataflow-icon">🔍</span>
+                <span class="dataflow-title">DUAL-PATH RETRIEVAL PIPELINE</span>
+            </div>
+
+            <div class="pipeline-row">
+                <div class="pipeline-track">
+                    <div class="track-label">
+                        <div class="track-icon orange">📝</div>
+                        <div>
+                            <div class="track-name">BM25 Retrieval</div>
+                            <div class="track-type">// Keyword Match</div>
+                        </div>
+                    </div>
+                    <div class="track-steps">
+                        <div class="track-step">
+                            <span class="step-key">01</span>
+                            <span>Query Tokenization</span>
+                        </div>
+                        <div class="track-step">
+                            <span class="step-key">02</span>
+                            <span>TF-IDF Weighting</span>
+                        </div>
+                        <div class="track-step">
+                            <span class="step-key">03</span>
+                            <span>BM25 Scoring</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pipeline-track">
+                    <div class="track-label">
+                        <div class="track-icon blue">🔢</div>
+                        <div>
+                            <div class="track-name">Vector Search</div>
+                            <div class="track-type">// Semantic Match</div>
+                        </div>
+                    </div>
+                    <div class="track-steps">
+                        <div class="track-step blue">
+                            <span class="step-key">01</span>
+                            <span>Query Embedding</span>
+                        </div>
+                        <div class="track-step blue">
+                            <span class="step-key">02</span>
+                            <span>ANN Index Search</span>
+                        </div>
+                        <div class="track-step blue">
+                            <span class="step-key">03</span>
+                            <span>Cosine Similarity</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="connector">⬇️</div>
+
+        <div class="fusion-module">
+            <div class="fusion-title">
+                <span>🔄</span>
+                <span>RRF RECIPROCAL RANK FUSION</span>
+            </div>
+            <div class="fusion-formula">
+                Score(d) = Σ 1 / (k + rank_i(d))
+            </div>
+            <div class="fusion-desc">
+                k = 60 (constant), rank_i = position in list i
+            </div>
+        </div>
+
+        <div class="connector">⬇️</div>
+
+        <div class="result-display">
+            <div class="result-header">
+                <span>🧠</span>
+                <span>Cross-Encoder ReRanking Output</span>
+            </div>
+            <div class="result-list">
+                <div class="result-row">
+                    <span class="result-rank">1</span>
+                    <span class="result-doc">Doc_A - Most Relevant Content</span>
+                    <span class="result-score">0.9521</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-rank">2</span>
+                    <span class="result-doc">Doc_C - Second Relevant</span>
+                    <span class="result-score">0.8943</span>
+                </div>
+                <div class="result-row">
+                    <span class="result-rank">3</span>
+                    <span class="result-doc">Doc_B - Third Relevant</span>
+                    <span class="result-score">0.8234</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

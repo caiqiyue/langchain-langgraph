@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>结构化输出解析器对比</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+            min-height: 100vh;
+            padding: 40px;
+        }
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #9a3412;
+            font-size: 34px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        .subtitle {
+            text-align: center;
+            color: #c2410c;
+            font-size: 15px;
+            margin-bottom: 40px;
+        }
+        .parsers-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            margin-bottom: 35px;
+        }
+        .parser-card {
+            background: white;
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        .parser-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+        .parser-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+        .icon-basic { background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%); }
+        .icon-json { background: linear-gradient(135deg, #fcd34d 0%, #f59e0b 100%); }
+        .icon-pydantic { background: linear-gradient(135deg, #34d399 0%, #10b981 100%); }
+        .parser-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        .parser-category {
+            font-size: 12px;
+            color: #64748b;
+        }
+        .parser-desc {
+            font-size: 14px;
+            color: #475569;
+            line-height: 1.6;
+            margin-bottom: 18px;
+        }
+        .parser-example {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 15px;
+            font-family: Monaco, monospace;
+            font-size: 12px;
+            color: #334155;
+            line-height: 1.6;
+        }
+        .key-points {
+            background: white;
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border-left: 5px solid #f97316;
+        }
+        .key-points h3 {
+            color: #9a3412;
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+        .key-list {
+            list-style: none;
+        }
+        .key-list li {
+            padding: 12px 0;
+            font-size: 15px;
+            color: #475569;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .key-list li:last-child { border-bottom: none; }
+        .key-num {
+            background: #f97316;
+            color: white;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>结构化输出解析器对比</h1>
+        <p class="subtitle">让大模型返回可程序解析的数据</p>
+
+        <div class="parsers-grid">
+            <div class="parser-card">
+                <div class="parser-header">
+                    <div class="parser-icon icon-basic">📝</div>
+                    <div>
+                        <div class="parser-name">StrOutputParser</div>
+                        <div class="parser-category">基础解析</div>
+                    </div>
+                </div>
+                <div class="parser-desc">将模型输出解析成纯字符串（默认解析器）</div>
+                <div class="parser-example">
+chain = prompt | model | StrOutputParser()
+result = chain.invoke("问题")
+# result 是字符串
+                </div>
+            </div>
+
+            <div class="parser-card">
+                <div class="parser-header">
+                    <div class="parser-icon icon-json">{ }</div>
+                    <div>
+                        <div class="parser-name">JsonOutputParser</div>
+                        <div class="parser-category">JSON 结构化解析</div>
+                    </div>
+                </div>
+                <div class="parser-desc">将 LLM 输出强制解析为 JSON 格式</div>
+                <div class="parser-example">
+parser = JsonOutputParser(pydantic_object=WeatherInfo)
+chain = prompt | model | parser
+result = chain.invoke(...)
+# result 是 dict 对象
+                </div>
+            </div>
+
+            <div class="parser-card">
+                <div class="parser-header">
+                    <div class="parser-icon icon-pydantic">🐍</div>
+                    <div>
+                        <div class="parser-name">with_structured_output</div>
+                        <div class="parser-category">Pydantic 结构化输出</div>
+                    </div>
+                </div>
+                <div class="parser-desc">使用 Pydantic 模型定义严格数据结构</div>
+                <div class="parser-example">
+class Person(BaseModel):
+    name: str
+    age: int
+
+structured_llm = llm.with_structured_output(Person)
+result = structured_llm.invoke(prompt)
+# result 是 Person 对象
+                </div>
+            </div>
+        </div>
+
+        <div class="key-points">
+            <h3>🔑 结构化输出关键要点</h3>
+            <ul class="key-list">
+                <li>
+                    <span class="key-num">1</span>
+                    <span><strong>提示词必须包含 "json" 关键词</strong> — DeepSeek API 要求提示词中包含 "json" 这个词，否则会报错</span>
+                </li>
+                <li>
+                    <span class="key-num">2</span>
+                    <span><strong>推荐方案对比</strong> — JsonOutputParser 最简洁；with_structured_output 功能最强大；手动 JSON 解析最稳定</span>
+                </li>
+                <li>
+                    <span class="key-num">3</span>
+                    <span><strong>配置建议</strong> — 设置 temperature=0.0 获得更稳定的输出；提供清晰的 JSON 格式示例</span>
+                </li>
+                <li>
+                    <span class="key-num">4</span>
+                    <span><strong>常见错误</strong> — 提示词中没有 "json" 关键词；没有设置低温度参数；没有提供 JSON 格式示例</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

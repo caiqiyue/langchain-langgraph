@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentic RAG 核心循环 - 圆环技术</title>
+    <style>
+        /* ========================================
+           设计系统
+           主色：深蓝紫 (#1e1b4b, #312e81, #4338ca)
+           风格：深色主题、圆环流程
+           ======================================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", "Consolas", monospace;
+            background: #0f0d1a;
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: #e2e8f0;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 50px; }
+        h1 {
+            color: #f8fafc;
+            font-size: 42px;
+            text-shadow: 0 0 40px rgba(99, 102, 241, 0.6);
+            margin-bottom: 15px;
+        }
+        .subtitle {
+            color: #818cf8;
+            font-size: 18px;
+            font-family: "Consolas", monospace;
+        }
+
+        /* 圆环流程 */
+        .ring-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 50px;
+            position: relative;
+        }
+        .ring-svg { width: 500px; height: 500px; }
+        .ring-path {
+            fill: none;
+            stroke: #312e81;
+            stroke-width: 40;
+            stroke-linecap: round;
+        }
+        .ring-path-active {
+            fill: none;
+            stroke: url(#ringGradient);
+            stroke-width: 40;
+            stroke-linecap: round;
+            stroke-dasharray: 200, 1000;
+            animation: ringPulse 3s ease-in-out infinite;
+        }
+        @keyframes ringPulse {
+            0%, 100% { stroke-dasharray: 200, 1000; opacity: 0.6; }
+            50% { stroke-dasharray: 300, 1000; opacity: 1; }
+        }
+
+        /* 四个节点 */
+        .ring-node {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .ring-node:hover { transform: scale(1.1); }
+        .ring-node-icon { font-size: 28px; margin-bottom: 5px; }
+        .ring-node-label { font-size: 13px; font-weight: 600; }
+        .ring-node-sub { font-size: 10px; opacity: 0.7; }
+
+        .ring-node.n1 { background: linear-gradient(135deg, #6366f1, #4338ca); top: 30px; left: 50%; transform: translateX(-50%); }
+        .ring-node.n2 { background: linear-gradient(135deg, #10b981, #059669); top: 50%; right: 20px; transform: translateY(-50%); }
+        .ring-node.n3 { background: linear-gradient(135deg, #f59e0b, #d97706); bottom: 30px; left: 50%; transform: translateX(-50%); }
+        .ring-node.n4 { background: linear-gradient(135deg, #ef4444, #dc2626); top: 50%; left: 20px; transform: translateY(-50%); }
+
+        /* 中心 */
+        .ring-center {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #4338ca 0%, #1e1b4b 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid #6366f1;
+            box-shadow: 0 0 40px rgba(99, 102, 241, 0.5);
+        }
+        .ring-center-icon { font-size: 36px; }
+        .ring-center-label { font-size: 14px; font-weight: 700; color: #e2e8f0; }
+
+        /* 步骤卡片 */
+        .tech-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .tech-step {
+            background: linear-gradient(135deg, #1e1b4b 0%, #0f0d1a 100%);
+            border: 1px solid #312e81;
+            border-radius: 16px;
+            padding: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+        .tech-step::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+        }
+        .tech-step:nth-child(1)::before { background: #6366f1; }
+        .tech-step:nth-child(2)::before { background: #10b981; }
+        .tech-step:nth-child(3)::before { background: #f59e0b; }
+        .tech-step:nth-child(4)::before { background: #ef4444; }
+
+        .tech-step-num {
+            font-size: 12px;
+            font-family: "Consolas", monospace;
+            color: #6366f1;
+            margin-bottom: 8px;
+        }
+        .tech-step h3 {
+            font-size: 18px;
+            color: #f8fafc;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .tech-step p {
+            font-size: 14px;
+            color: #94a3b8;
+            line-height: 1.6;
+        }
+        .tech-step-code {
+            font-family: "Consolas", monospace;
+            font-size: 12px;
+            background: #0f0d1a;
+            color: #a5b4fc;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 1px solid #312e81;
+        }
+
+        /* 状态指示 */
+        .loop-status {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 40px;
+            padding: 20px;
+            background: #1e1b4b;
+            border-radius: 12px;
+        }
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
+        .status-icon { font-size: 20px; }
+        .status-text { color: #94a3b8; }
+        .status-value { color: #f8fafc; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>AGENTIC RAG REACT LOOP</h1>
+            <p class="subtitle">Thought → Action → Observation → Done?</p>
+        </header>
+
+        <div class="ring-container" style="height: 420px;">
+            <svg class="ring-svg" viewBox="0 0 500 500">
+                <defs>
+                    <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#6366f1"/>
+                        <stop offset="50%" style="stop-color:#8b5cf6"/>
+                        <stop offset="100%" style="stop-color:#a78bfa"/>
+                    </linearGradient>
+                </defs>
+                <circle cx="250" cy="250" r="180" class="ring-path"/>
+                <circle cx="250" cy="250" r="180" class="ring-path-active"/>
+            </svg>
+
+            <div class="ring-node n1">
+                <span class="ring-node-icon">🧠</span>
+                <span class="ring-node-label">LLM 决策</span>
+                <span class="ring-node-sub">THOUGHT</span>
+            </div>
+            <div class="ring-node n2">
+                <span class="ring-node-icon">🔍</span>
+                <span class="ring-node-label">执行检索</span>
+                <span class="ring-node-sub">ACTION</span>
+            </div>
+            <div class="ring-node n3">
+                <span class="ring-node-icon">📊</span>
+                <span class="ring-node-label">评估结果</span>
+                <span class="ring-node-sub">OBSERVE</span>
+            </div>
+            <div class="ring-node n4">
+                <span class="ring-node-icon">❓</span>
+                <span class="ring-node-label">判断结束</span>
+                <span class="ring-node-sub">DONE?</span>
+            </div>
+            <div class="ring-center">
+                <span class="ring-center-icon">🔄</span>
+                <span class="ring-center-label">AGENT</span>
+            </div>
+        </div>
+
+        <div class="tech-steps">
+            <div class="tech-step">
+                <div class="tech-step-num">// STEP 01</div>
+                <h3>🧠 LLM 决策 (Thought)</h3>
+                <p>Agent 分析用户问题，理解意图，决定是否需要检索以及使用什么工具</p>
+                <div class="tech-step-code">model.bind_tools([rag_tool])<br>decision = agent.invoke()</div>
+            </div>
+            <div class="tech-step">
+                <div class="tech-step-num">// STEP 02</div>
+                <h3>🔍 执行检索 (Action)</h3>
+                <p>根据决策调用相应工具执行检索，从向量数据库获取相关文档</p>
+                <div class="tech-step-code">retriever.get_relevant<br>_documents(query)</div>
+            </div>
+            <div class="tech-step">
+                <div class="tech-step-num">// STEP 03</div>
+                <h3>📊 观察评估 (Observation)</h3>
+                <p>将检索结果反馈给 LLM，评估文档与问题的相关性是否足够</p>
+                <div class="tech-step-code">context = retrieved_docs<br>relevance = evaluate()</div>
+            </div>
+            <div class="tech-step">
+                <div class="tech-step-num">// STEP 04</div>
+                <h3>✅ 判断结束</h3>
+                <p>信息足够则生成最终回答，否则继续循环检索直到达到最大次数</p>
+                <div class="tech-step-code">if sufficient: respond()<br>else: loop continue</div>
+            </div>
+        </div>
+
+        <div class="loop-status">
+            <div class="status-item">
+                <span class="status-icon">🔄</span>
+                <span class="status-text">循环状态:</span>
+                <span class="status-value">迭代中</span>
+            </div>
+            <div class="status-item">
+                <span class="status-icon">📊</span>
+                <span class="status-text">检索次数:</span>
+                <span class="status-value">动态</span>
+            </div>
+            <div class="status-item">
+                <span class="status-icon">✅</span>
+                <span class="status-text">最大迭代:</span>
+                <span class="status-value">5次</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

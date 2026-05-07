@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM vs ChatModel 区别</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            min-height: 100vh;
+            padding: 40px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #1e3a8a;
+            font-size: 36px;
+            margin-bottom: 40px;
+            font-weight: 600;
+        }
+        .models-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 35px;
+            margin-bottom: 40px;
+        }
+        .model-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+        }
+        .model-header {
+            padding: 25px 30px;
+            text-align: center;
+        }
+        .header-llm {
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+        }
+        .header-chat {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        }
+        .model-icon {
+            font-size: 50px;
+            margin-bottom: 15px;
+        }
+        .model-name {
+            font-size: 26px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 5px;
+        }
+        .model-eng {
+            font-size: 14px;
+            color: rgba(255,255,255,0.85);
+        }
+        .model-body {
+            padding: 30px;
+        }
+        .model-desc {
+            font-size: 15px;
+            color: #475569;
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+        .feature-list {
+            list-style: none;
+        }
+        .feature-list li {
+            padding: 10px 0;
+            font-size: 14px;
+            color: #334155;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .feature-list li:last-child { border-bottom: none; }
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .dot-orange { background: #f97316; }
+        .dot-purple { background: #8b5cf6; }
+        .use-cases {
+            background: white;
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+        }
+        .use-cases h3 {
+            font-size: 22px;
+            color: #1e3a8a;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .cases-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        .case-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 18px 22px;
+            background: #f8fafc;
+            border-radius: 12px;
+        }
+        .case-icon {
+            font-size: 28px;
+        }
+        .case-text {
+            font-size: 15px;
+            color: #334155;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>LLM vs ChatModel 区别</h1>
+
+        <div class="models-grid">
+            <div class="model-card">
+                <div class="model-header header-llm">
+                    <div class="model-icon">📝</div>
+                    <div class="model-name">LLM</div>
+                    <div class="model-eng">Large Language Model</div>
+                </div>
+                <div class="model-body">
+                    <div class="model-desc">
+                        传统的<strong>文本进-文本出</strong>模型，输入一段文字，输出一个完整的文本回复。
+                    </div>
+                    <ul class="feature-list">
+                        <li><span class="dot dot-orange"></span> 输入：纯文本字符串</li>
+                        <li><span class="dot dot-orange"></span> 输出：纯文本字符串</li>
+                        <li><span class="dot dot-orange"></span> 适合：文本生成、摘要、翻译</li>
+                        <li><span class="dot dot-orange"></span> 示例：text-davinci-003</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="model-card">
+                <div class="model-header header-chat">
+                    <div class="model-icon">💬</div>
+                    <div class="model-name">ChatModel</div>
+                    <div class="model-eng">Chat Model / 对话模型</div>
+                </div>
+                <div class="model-body">
+                    <div class="model-desc">
+                        基于<strong>消息</strong>的对话模型，更适合构建聊天机器人，支持多轮对话和上下文管理。
+                    </div>
+                    <ul class="feature-list">
+                        <li><span class="dot dot-purple"></span> 输入：消息列表 [System, User, AI]</li>
+                        <li><span class="dot dot-purple"></span> 输出：AIMessage 对象</li>
+                        <li><span class="dot dot-purple"></span> 适合：聊天机器人、智能助手</li>
+                        <li><span class="dot dot-purple"></span> 示例：gpt-4o, qwen3-max</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="use-cases">
+            <h3>🎯 典型使用场景</h3>
+            <div class="cases-grid">
+                <div class="case-item">
+                    <span class="case-icon">🔍</span>
+                    <span class="case-text">RAG 问答系统</span>
+                </div>
+                <div class="case-item">
+                    <span class="case-icon">🤖</span>
+                    <span class="case-text">客服机器人</span>
+                </div>
+                <div class="case-item">
+                    <span class="case-icon">📧</span>
+                    <span class="case-text">邮件撰写助手</span>
+                </div>
+                <div class="case-item">
+                    <span class="case-icon">💻</span>
+                    <span class="case-text">代码生成助手</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>create_agent 九大参数</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            min-height: 100vh;
+            padding: 40px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #92400e;
+            font-size: 36px;
+            margin-bottom: 50px;
+            font-weight: 600;
+        }
+        .section-title {
+            color: #b45309;
+            font-size: 22px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .required-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        .param-box {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 6px 25px rgba(0,0,0,0.1);
+            border-left: 5px solid;
+            transition: transform 0.3s;
+        }
+        .param-box:hover {
+            transform: translateX(5px);
+        }
+        .param-box.model { border-color: #ef4444; }
+        .param-box.tools { border-color: #f97316; }
+        .param-box.optional { border-color: #22c55e; }
+        .param-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .param-badge {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        .param-badge.optional {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        }
+        .param-name {
+            font-size: 20px;
+            color: #1e293b;
+            font-weight: 600;
+        }
+        .param-type {
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 10px;
+        }
+        .param-desc {
+            font-size: 13px;
+            color: #475569;
+            line-height: 1.6;
+        }
+        .optional-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        .optional-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        }
+        .optional-card h4 {
+            color: #166534;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+        .optional-card .param-type {
+            margin-bottom: 8px;
+        }
+        .optional-card p {
+            font-size: 12px;
+            color: #64748b;
+            line-height: 1.5;
+        }
+        .note-box {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 40px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        }
+        .note-box h3 {
+            color: #92400e;
+            margin-bottom: 15px;
+        }
+        .note-box code {
+            background: #fef3c7;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        @media (max-width: 900px) {
+            .required-grid, .optional-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚙️ create_agent 九大参数</h1>
+
+        <div class="section-title">🔥 必填参数</div>
+        <div class="required-grid">
+            <div class="param-box model">
+                <div class="param-header">
+                    <span class="param-badge">必填</span>
+                    <span class="param-name">model</span>
+                </div>
+                <div class="param-type">str / LLM 实例</div>
+                <div class="param-desc">
+                    推理引擎，决定 Agent 的"智力水平"。<br>
+                    生产环境建议使用实例化配置。
+                </div>
+            </div>
+
+            <div class="param-box tools">
+                <div class="param-header">
+                    <span class="param-badge">必填</span>
+                    <span class="param-name">tools</span>
+                </div>
+                <div class="param-type">list[BaseTool]</div>
+                <div class="param-desc">
+                    工具列表，决定 Agent 的"能力范围"。<br>
+                    工具描述（description）是 LLM 选择工具的依据。
+                </div>
+            </div>
+        </div>
+
+        <div class="section-title">🌿 可选参数</div>
+        <div class="optional-grid">
+            <div class="optional-card">
+                <h4>system_prompt</h4>
+                <div class="param-type">str</div>
+                <p>Agent 的"人格说明书"，定义角色、行为准则、输出格式</p>
+            </div>
+
+            <div class="optional-card">
+                <h4>middleware</h4>
+                <div class="param-type">list[Middleware]</div>
+                <p>功能扩展：日志记录、安全检查、人工介入、上下文压缩</p>
+            </div>
+
+            <div class="optional-card">
+                <h4>checkpointer</h4>
+                <div class="param-type">MemorySaver</div>
+                <p>短期记忆，管理会话级对话历史（与 thread_id 绑定）</p>
+            </div>
+
+            <div class="optional-card">
+                <h4>store</h4>
+                <div class="param-type">BaseStore</div>
+                <p>长期记忆，跨会话持久化用户信息、偏好等</p>
+            </div>
+
+            <div class="optional-card">
+                <h4>state_schema</h4>
+                <div class="param-type">TypedDict</div>
+                <p>自定义状态结构，扩展 Agent 的状态字段</p>
+            </div>
+
+            <div class="optional-card">
+                <h4>context_schema</h4>
+                <div class="param-type">TypedDict</div>
+                <p>动态上下文结构，运行时传入用户角色、权限等</p>
+            </div>
+
+            <div class="optional-card">
+                <h4>response_format</h4>
+                <div class="param-type">BaseModel</div>
+                <p>结构化输出格式，适用于 API 返回标准化场景</p>
+            </div>
+        </div>
+
+        <div class="note-box">
+            <h3>💡 最佳实践</h3>
+            <p>
+                <code>system_prompt</code> 应简洁明了，定义清楚 Agent 的角色和约束。<br>
+                <code>checkpointer</code> 生产环境必须配置，否则每次都是新对话。<br>
+                <code>tools</code> 的描述（description）是 LLM 选择工具的唯一依据，必须清晰准确。
+            </p>
+        </div>
+    </div>
+</body>
+</html>

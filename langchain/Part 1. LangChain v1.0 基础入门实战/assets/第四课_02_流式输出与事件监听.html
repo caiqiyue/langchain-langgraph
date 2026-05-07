@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>流式输出与 astream_events 事件流</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            min-height: 100vh;
+            padding: 40px;
+        }
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #0c4a6e;
+            font-size: 32px;
+            margin-bottom: 40px;
+            font-weight: 600;
+        }
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 35px;
+        }
+        .section-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+        }
+        .section-title {
+            font-size: 22px;
+            color: #0c4a6e;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .stream-demo {
+            background: #1e293b;
+            border-radius: 14px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+        .stream-label {
+            color: #94a3b8;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+        .stream-text {
+            color: #e2e8f0;
+            font-size: 18px;
+            line-height: 1.8;
+            min-height: 50px;
+        }
+        .cursor {
+            display: inline-block;
+            width: 2px;
+            height: 20px;
+            background: #67e8f9;
+            animation: blink 1s infinite;
+            vertical-align: middle;
+            margin-left: 2px;
+        }
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        .chunk-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .chunk {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            animation: fadeIn 0.3s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .events-list {
+            list-style: none;
+        }
+        .event-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .event-item:last-child { border-bottom: none; }
+        .event-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        .icon-chain { background: #dbeafe; }
+        .icon-prompt { background: #fef3c7; }
+        .icon-llm-start { background: #fce7f3; }
+        .icon-token { background: #dcfce7; }
+        .icon-llm-end { background: #fee2e2; }
+        .event-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        .event-desc {
+            font-size: 12px;
+            color: #64748b;
+        }
+        .note-box {
+            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 16px;
+            margin-top: 30px;
+        }
+        .note-box h3 {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        .note-list {
+            list-style: none;
+        }
+        .note-list li {
+            padding: 8px 0;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>流式输出与 astream_events 事件流</h1>
+
+        <div class="content-grid">
+            <div class="section-card">
+                <h2 class="section-title">🌊 stream() 流式输出</h2>
+                <div class="stream-demo">
+                    <div class="stream-label">模型正在生成...</div>
+                    <div class="stream-text">
+                        你好<span class="cursor"></span>
+                    </div>
+                </div>
+                <p style="color: #475569; font-size: 14px; margin-bottom: 15px;">逐块显示，像打字效果一样实时返回每个 token</p>
+                <div class="chunk-list">
+                    <span class="chunk">你</span>
+                    <span class="chunk">好</span>
+                    <span class="chunk">，</span>
+                    <span class="chunk">我</span>
+                    <span class="chunk">是</span>
+                    <span class="chunk">A</span>
+                    <span class="chunk">I</span>
+                    <span class="chunk">助</span>
+                    <span class="chunk">手</span>
+                </div>
+                <div style="margin-top: 20px; padding: 15px; background: #f8fafc; border-radius: 10px;">
+                    <p style="color: #475569; font-size: 13px; line-height: 1.6;">
+                        每个 <strong>AIMessageChunk</strong> 可以通过 <strong>+</strong> 操作符拼接<br>
+                        LangChain 内部设计了"消息块相加（chunk summation）"机制
+                    </p>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h2 class="section-title">⚡ astream_events() 语义事件流</h2>
+                <p style="color: #475569; font-size: 14px; margin-bottom: 20px;">异步流式监听完整语义生命周期事件</p>
+                <ul class="events-list">
+                    <li class="event-item">
+                        <div class="event-icon icon-chain">🔗</div>
+                        <div>
+                            <div class="event-name">on_chain_start</div>
+                            <div class="event-desc">链开始执行</div>
+                        </div>
+                    </li>
+                    <li class="event-item">
+                        <div class="event-icon icon-prompt">📝</div>
+                        <div>
+                            <div class="event-name">on_prompt_start / on_prompt_end</div>
+                            <div class="event-desc">Prompt 处理开始/结束</div>
+                        </div>
+                    </li>
+                    <li class="event-item">
+                        <div class="event-icon icon-llm-start">🤖</div>
+                        <div>
+                            <div class="event-name">on_llm_start</div>
+                            <div class="event-desc">LLM 调用开始</div>
+                        </div>
+                    </li>
+                    <li class="event-item">
+                        <div class="event-icon icon-token">📊</div>
+                        <div>
+                            <div class="event-name">on_llm_stream（逐 Token）</div>
+                            <div class="event-desc">每个 token 生成时触发</div>
+                        </div>
+                    </li>
+                    <li class="event-item">
+                        <div class="event-icon icon-llm-end">✅</div>
+                        <div>
+                            <div class="event-name">on_llm_end</div>
+                            <div class="event-desc">LLM 调用完成</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="note-box">
+            <h3>🎯 适用场景</h3>
+            <ul class="note-list">
+                <li>• 调试 LLM 推理过程</li>
+                <li>• 了解 LangChain pipeline 的执行顺序</li>
+                <li>• 构建 UI（如 web 前端的逐 token streaming）</li>
+                <li>• 实现日志、可观测性、监控系统</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

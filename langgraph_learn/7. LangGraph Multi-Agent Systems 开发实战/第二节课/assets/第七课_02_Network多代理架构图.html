@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network 多代理架构图</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            color: #fff;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #00d4ff;
+            margin-bottom: 30px;
+            font-weight: 300;
+        }
+        .mermaid {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 8px;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Network 多代理架构图</h1>
+
+        <div class="mermaid">
+graph TB
+    subgraph Agents["多代理系统"]
+        DB["数据库管理员<br/>db_manager"]
+        CODE["代码生成器<br/>code_generator"]
+        TOOL["工具执行器<br/>call_tool"]
+    end
+
+    START(("用户输入")) --> DB
+
+    DB -->|"继续"| CODE
+    DB -->|"调用工具"| TOOL
+    CODE -->|"继续"| DB
+    CODE -->|"调用工具"| TOOL
+    TOOL -->|"db_manager"| DB
+    TOOL -->|"code_generator"| CODE
+
+    DB -.->|"FINAL ANSWER"| END
+    CODE -.->|"FINAL ANSWER"| END
+
+    style START fill:#4caf50,stroke:#2e7d32,color:#fff
+    style DB fill:#2196f3,stroke:#1565c0,color:#fff
+    style CODE fill:#ff9800,stroke:#f57c00,color:#fff
+    style TOOL fill:#9c27b0,stroke:#6a1b9a,color:#fff
+    style END fill:#f44336,stroke:#c62828,color:#fff
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: #4caf50;"></div>
+                <span>用户输入</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #2196f3;"></div>
+                <span>数据库管理员</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #ff9800;"></div>
+                <span>代码生成器</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #9c27b0;"></div>
+                <span>工具执行器</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #f44336;"></div>
+                <span>结束</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'base',
+            themeVariables: {
+                primaryColor: '#e3f2fd',
+                primaryTextColor: '#000',
+                primaryBorderColor: '#1976d2',
+                lineColor: '#333',
+                secondaryColor: '#fff3e0',
+                tertiaryColor: '#f5f5f5'
+            }
+        });
+    </script>
+</body>
+</html>

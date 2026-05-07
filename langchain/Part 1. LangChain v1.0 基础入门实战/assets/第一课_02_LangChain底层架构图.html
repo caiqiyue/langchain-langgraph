@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LangChain 1.0 底层运行架构</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+        .container {
+            width: 100%;
+            max-width: 1200px;
+        }
+        h1 {
+            text-align: center;
+            color: #1e293b;
+            font-size: 36px;
+            margin-bottom: 50px;
+            font-weight: 600;
+        }
+        .architecture {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        .layer {
+            width: 100%;
+            max-width: 900px;
+            border-radius: 16px;
+            padding: 30px 40px;
+            position: relative;
+            transition: transform 0.3s;
+        }
+        .layer:hover {
+            transform: scale(1.02);
+        }
+        .layer-app {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .layer-langgraph {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+        .layer-lcel {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+        .layer-api {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+        }
+        .layer-label {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+        .layer-title {
+            font-size: 26px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .layer-desc {
+            font-size: 15px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+        .arrow {
+            width: 60px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .arrow svg {
+            width: 30px;
+            height: 30px;
+        }
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #475569;
+        }
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .legend-dot-lcel { background: #4facfe; }
+        .legend-dot-langgraph { background: #f093fb; }
+        .legend-dot-app { background: #667eea; }
+        .key-points {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-top: 40px;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        .key-points h3 {
+            color: #1e293b;
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+        .key-point {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .key-point:last-child { margin-bottom: 0; }
+        .key-num {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        .key-text {
+            font-size: 15px;
+            color: #475569;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>LangChain 1.0 底层运行架构</h1>
+
+        <div class="architecture">
+            <div class="layer layer-app">
+                <span class="layer-label">应用层</span>
+                <div class="layer-title">LangChain 1.0 应用层</div>
+                <div class="layer-desc">create_agent, 工具和中间件</div>
+            </div>
+
+            <div class="arrow">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#667eea" stroke-width="2">
+                    <path d="M12 5v14M5 12l7 7 7-7"/>
+                </svg>
+            </div>
+
+            <div class="layer layer-langgraph">
+                <span class="layer-label">编排层</span>
+                <div class="layer-title">LangGraph 编排层</div>
+                <div class="layer-desc">StateGraph, Nodes, Edges, Checkpoints</div>
+            </div>
+
+            <div class="arrow">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#f093fb" stroke-width="2">
+                    <path d="M12 5v14M5 12l7 7 7-7"/>
+                </svg>
+            </div>
+
+            <div class="layer layer-lcel">
+                <span class="layer-label">运行时层</span>
+                <div class="layer-title">LCEL 运行时层</div>
+                <div class="layer-desc">Runnable接口, |运算符, 流式/批处理</div>
+            </div>
+
+            <div class="arrow">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#4facfe" stroke-width="2">
+                    <path d="M12 5v14M5 12l7 7 7-7"/>
+                </svg>
+            </div>
+
+            <div class="layer layer-api">
+                <span class="layer-label">模型层</span>
+                <div class="layer-title">大语言模型 API</div>
+                <div class="layer-desc">OpenAI / DeepSeek / DashScope / Ollama 等</div>
+            </div>
+        </div>
+
+        <div class="key-points">
+            <h3>🔑 核心概念</h3>
+            <div class="key-point">
+                <span class="key-num">1</span>
+                <span class="key-text"><strong>LCEL</strong>：提供Runnable接口（invoke, stream, batch）和组合原语（|运算符），是无状态的函数式编排，构建"流水线（pipeline）"的工具</span>
+            </div>
+            <div class="key-point">
+                <span class="key-num">2</span>
+                <span class="key-text"><strong>LangGraph</strong>：在LCEL基础上增加状态管理（State）、循环控制（Cycles）、持久化（Checkpoints），是有状态的图结构编排，构建"流程图（workflow/graph）"的工具</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
