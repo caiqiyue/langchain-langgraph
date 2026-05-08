@@ -1,39 +1,55 @@
-# LangChain & LangGraph AI Agent 开发实战 - 环境依赖
+# LangChain & LangGraph 学习课程 - 环境依赖
 
-# Core Framework
+# ============================================================
+# Core Framework（核心框架）
+# ============================================================
 langchain>=0.3.0
 langchain-core>=0.3.0
-langchain-openai>=0.2.0
 langgraph>=0.2.0
 
-# Agent & Tool Integration
-langchain-agents
+# ============================================================
+# LLM Integration（语言模型集成）
+# ============================================================
+langchain-openai>=0.2.0
+langchain-deepseek>=0.2.0
+langchain-ollama>=0.2.0
+
+# ============================================================
+# Agent & Tool Integration（Agent与工具集成）
+# ============================================================
 langchain-experimental
 langchain-tavily
+langchain-agents
 langchain-mcp-adapters
 deepagents
 
-# Vector Store & RAG
+# ============================================================
+# Vector Store & RAG（向量存储与RAG）
+# ============================================================
 langchain-chroma
 langchain-milvus
 faiss-cpu
 rank-bm25
+langchain-text-splitters
 
-# Database
+# ============================================================
+# Database（数据库）
+# ============================================================
 sqlalchemy
 psycopg-pool
 langgraph-checkpoint-postgres
 langgraph-checkpoint-sqlite
 
-# LLM Integration
-langchain-ollama
-langchain-deepseek
-
-# Middleware & UI
+# ============================================================
+# Middleware & UI（中间件与界面）
+# ============================================================
 gradio
 rich
+ipython
 
-# Web & Scraping
+# ============================================================
+# Web & Scraping（网络与爬虫）
+# ============================================================
 requests
 httpx
 bs4
@@ -43,9 +59,15 @@ playwright
 aiohttp
 regex
 
-# Utilities
+# ============================================================
+# Utilities（工具库）
+# ============================================================
 pydantic
 python-dotenv
 faker
 tiktoken
-ipython
+
+# ============================================================
+# Sandbox（沙箱环境，可选）
+# ============================================================
+sandbox

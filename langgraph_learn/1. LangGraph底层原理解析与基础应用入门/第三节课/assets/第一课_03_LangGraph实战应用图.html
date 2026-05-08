@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LangGraph 实战应用</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            padding: 40px;
+        }
+        .container { max-width: 1920px; margin: 0 auto; }
+        h1 {
+            text-align: center;
+            color: #fff;
+            font-size: 48px;
+            margin-bottom: 50px;
+            font-weight: 600;
+            text-shadow: 0 0 20px rgba(100, 200, 255, 0.5);
+        }
+        .workflows-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 40px;
+        }
+        .workflow-card {
+            background: rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+        }
+        .workflow-card h2 {
+            color: #fff;
+            font-size: 28px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .workflow-card h2 .icon { font-size: 36px; }
+        .flow-diagram {
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+        .flow-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .flow-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            text-align: center;
+            min-width: 120px;
+        }
+        .flow-box.user { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .flow-box.llm { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: #000; }
+        .flow-arrow { color: #4facfe; font-size: 24px; }
+        .features-list {
+            list-style: none;
+            margin-top: 15px;
+        }
+        .features-list li {
+            color: rgba(255,255,255,0.85);
+            font-size: 14px;
+            padding: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .features-list .dot {
+            width: 8px;
+            height: 8px;
+            background: #4facfe;
+            border-radius: 50%;
+        }
+        .code-preview {
+            background: rgba(0,0,0,0.4);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        .code-preview pre {
+            color: #43e97b;
+            font-family: "Courier New", monospace;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        .highlight-text {
+            color: #f093fb;
+            font-size: 18px;
+            text-align: center;
+            padding: 20px;
+            background: rgba(240, 147, 251, 0.1);
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>LangGraph 实战应用</h1>
+
+        <div class="workflows-container">
+            <div class="workflow-card">
+                <h2><span class="icon">💬</span>LLM 问答流程</h2>
+                <div class="flow-diagram">
+                    <div class="flow-row">
+                        <div class="flow-box user">用户问题</div>
+                        <span class="flow-arrow">→</span>
+                        <div class="flow-box">LLM节点</div>
+                        <span class="flow-arrow">→</span>
+                        <div class="flow-box llm">自然语言响应</div>
+                    </div>
+                </div>
+                <ul class="features-list">
+                    <li><span class="dot"></span>使用ChatOpenAI接收用户问题</li>
+                    <li><span class="dot"></span>通过LLM节点生成自然语言响应</li>
+                    <li><span class="dot"></span>返回格式化后的答案</li>
+                </ul>
+                <div class="code-preview">
+                    <pre>response = app.invoke({"question": "..."})
+answer = response["answer"]</pre>
+                </div>
+            </div>
+
+            <div class="workflow-card">
+                <h2><span class="icon">🌐</span>多节点翻译流程</h2>
+                <div class="flow-diagram">
+                    <div class="flow-row">
+                        <div class="flow-box user">原始文本</div>
+                        <span class="flow-arrow">→</span>
+                        <div class="flow-box">翻译节点1</div>
+                        <span class="flow-arrow">→</span>
+                        <div class="flow-box">翻译节点2</div>
+                        <span class="flow-arrow">→</span>
+                        <div class="flow-box llm">多语言输出</div>
+                    </div>
+                </div>
+                <ul class="features-list">
+                    <li><span class="dot"></span>定义多个功能节点</li>
+                    <li><span class="dot"></span>通过边建立节点间连接</li>
+                    <li><span class="dot"></span>实现复杂的数据处理流程</li>
+                </ul>
+                <div class="code-preview">
+                    <pre>graph.add_node("translate_en", en_node)
+graph.add_node("translate_fr", fr_node)
+graph.add_edge("translate_en", "translate_fr")</pre>
+                </div>
+            </div>
+        </div>
+
+        <div class="highlight-text">
+            LangGraph 优势：高度灵活性 + 良好扩展性 + 自动状态管理
+        </div>
+    </div>
+</body>
+</html>

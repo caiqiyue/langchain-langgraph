@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LangSmith 基础使用入门</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            padding: 40px;
+        }
+        .container { max-width: 1920px; margin: 0 auto; }
+        h1 {
+            text-align: center;
+            color: #fff;
+            font-size: 48px;
+            margin-bottom: 50px;
+            font-weight: 600;
+            text-shadow: 0 0 20px rgba(100, 200, 255, 0.5);
+        }
+        .main-content {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        .card {
+            background: rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+        }
+        .card h2 {
+            color: #4facfe;
+            font-size: 24px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .card h2 .icon { font-size: 32px; }
+        .code-box {
+            background: rgba(0,0,0,0.4);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        .code-box pre {
+            color: #43e97b;
+            font-family: "Courier New", monospace;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .code-box .comment { color: #888; }
+        .code-box .keyword { color: #f093fb; }
+        .concept-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        .concept-box {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .concept-box h3 {
+            color: #fff;
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+        .concept-box .icon { font-size: 40px; margin-bottom: 10px; }
+        .concept-box p {
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+        }
+        .feature-list {
+            list-style: none;
+        }
+        .feature-list li {
+            color: rgba(255,255,255,0.85);
+            font-size: 14px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .feature-list li:last-child { border-bottom: none; }
+        .bullet {
+            width: 8px;
+            height: 8px;
+            background: #43e97b;
+            border-radius: 50%;
+        }
+        .setup-steps {
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+        }
+        .step-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .step-num {
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, #4facfe 0%, #43e97b 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-weight: 700;
+            font-size: 16px;
+        }
+        .step-text {
+            color: rgba(255,255,255,0.85);
+            font-size: 14px;
+        }
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        .highlight-box p { color: #fff; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>LangSmith 基础使用入门</h1>
+
+        <div class="concept-grid">
+            <div class="concept-box" style="border-top: 4px solid #4facfe;">
+                <div class="icon">📁</div>
+                <h3>Project</h3>
+                <p>代表整个应用程序的容器，管理所有追踪数据</p>
+            </div>
+            <div class="concept-box" style="border-top: 4px solid #43e97b;">
+                <div class="icon">🔍</div>
+                <h3>Traces</h3>
+                <p>轨迹，项目在不同条件下的执行路径记录</p>
+            </div>
+            <div class="concept-box" style="border-top: 4px solid #f093fb;">
+                <div class="icon">⚡</div>
+                <h3>Runs</h3>
+                <p>运行，特定轨迹的单次执行记录</p>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="card">
+                <h2><span class="icon">⚙️</span>环境配置</h2>
+                <div class="code-box">
+                    <pre>
+<span class="comment"># 设置环境变量</span>
+<span class="keyword">import</span> os
+
+os.environ[<span class="string">"LANGCHAIN_API_KEY"</span>] = <span class="string">"your-key"</span>
+os.environ[<span class="string">"LANGCHAIN_TRACING_V2"</span>] = <span class="string">"true"</span>
+os.environ[<span class="string">"LANGCHAIN_PROJECT"</span>] = <span class="string">"my-project"</span></pre>
+                </div>
+                <ul class="feature-list">
+                    <li><span class="bullet"></span>创建 LangSmith 账户</li>
+                    <li><span class="bullet"></span>获取 API Key</li>
+                    <li><span class="bullet"></span>配置环境变量</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon">🔗</span>集成 LangGraph</h2>
+                <div class="code-box">
+                    <pre>
+<span class="comment"># 无需额外安装</span>
+<span class="comment"># LangGraph 内置 LangSmith 支持</span>
+
+<span class="comment"># 自动追踪图执行</span>
+app.invoke({"messages": [...]})</pre>
+                </div>
+                <ul class="feature-list">
+                    <li><span class="bullet"></span>零代码改动集成</li>
+                    <li><span class="bullet"></span>自动捕获执行轨迹</li>
+                    <li><span class="bullet"></span>实时监控性能</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon">📊</span>监控能力</h2>
+                <ul class="feature-list">
+                    <li><span class="bullet"></span>查看执行时间</li>
+                    <li><span class="bullet"></span>分析 token 消耗</li>
+                    <li><span class="bullet"></span>调试对话流程</li>
+                    <li><span class="bullet"></span>性能优化分析</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="setup-steps">
+            <h3 style="color: #4facfe; margin-bottom: 20px;">快速开始</h3>
+            <div class="step-row">
+                <div class="step-num">1</div>
+                <div class="step-text">注册 LangSmith 账号 (smith.langchain.com)</div>
+            </div>
+            <div class="step-row">
+                <div class="step-num">2</div>
+                <div class="step-text">获取 API Key 并设置环境变量</div>
+            </div>
+            <div class="step-row">
+                <div class="step-num">3</div>
+                <div class="step-text">运行 LangGraph 应用，自动开始追踪</div>
+            </div>
+        </div>
+
+        <div class="highlight-box" style="margin-top: 30px;">
+            <p>LangSmith = 调试和监控 LangGraph 应用的利器</p>
+        </div>
+    </div>
+</body>
+</html>

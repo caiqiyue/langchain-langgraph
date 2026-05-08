@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LangGraph 核心底层机制</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            padding: 40px;
+        }
+        .container { max-width: 1920px; margin: 0 auto; }
+        h1 {
+            text-align: center;
+            color: #fff;
+            font-size: 48px;
+            margin-bottom: 50px;
+            font-weight: 600;
+            text-shadow: 0 0 20px rgba(100, 200, 255, 0.5);
+        }
+        .architecture-diagram {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+        .arch-box {
+            background: rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.15);
+            min-width: 200px;
+        }
+        .arch-box.graph { border-top: 5px solid #667eea; }
+        .arch-box.stategraph { border-top: 5px solid #4facfe; }
+        .arch-box.compiled { border-top: 5px solid #43e97b; }
+        .arch-box h2 {
+            color: #fff;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        .arch-box .icon { font-size: 48px; margin-bottom: 10px; }
+        .arch-box p {
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+        }
+        .arrow { color: #4facfe; font-size: 36px; }
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+        }
+        .info-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .info-card h3 {
+            color: #4facfe;
+            font-size: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .info-card ul {
+            list-style: none;
+        }
+        .info-card li {
+            color: rgba(255,255,255,0.85);
+            font-size: 14px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .info-card li:last-child { border-bottom: none; }
+        .method-tag {
+            background: rgba(79, 172, 254, 0.3);
+            color: #4facfe;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-right: 8px;
+        }
+        .diagram-box {
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+        .diagram-box pre {
+            color: #43e97b;
+            font-family: "Courier New", monospace;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>LangGraph 核心底层机制</h1>
+
+        <div class="architecture-diagram">
+            <div class="arch-box graph">
+                <div class="icon">📦</div>
+                <h2>Graph 基类</h2>
+                <p>所有图结构的基础<br>管理节点和边</p>
+            </div>
+            <span class="arrow">→</span>
+            <div class="arch-box stategraph">
+                <div class="icon">🔷</div>
+                <h2>StateGraph</h2>
+                <p>继承自Graph<br>管理状态和配置</p>
+            </div>
+            <span class="arrow">→</span>
+            <div class="arch-box compiled">
+                <div class="icon">✅</div>
+                <h2>CompiledGraph</h2>
+                <p>编译后的可执行图<br>支持invoke/stream</p>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <div class="info-card">
+                <h3>🔧 Graph 核心属性</h3>
+                <ul>
+                    <li><span class="method-tag">nodes</span>存储图中所有节点</li>
+                    <li><span class="method-tag">edges</span>存储图中所有边</li>
+                    <li><span class="method-tag">branches</span>存储条件分支</li>
+                    <li><span class="method-tag">support_multiple_edges</span>是否支持同一对节点间的多条边</li>
+                    <li><span class="method-tag">compiled</span>图是否已被编译</li>
+                </ul>
+            </div>
+
+            <div class="info-card">
+                <h3>⚡ 核心方法</h3>
+                <ul>
+                    <li><span class="method-tag">add_node()</span>添加节点</li>
+                    <li><span class="method-tag">add_edge()</span>添加边</li>
+                    <li><span class="method-tag">add_conditional_edges()</span>添加条件边</li>
+                    <li><span class="method-tag">set_entry_point()</span>设置入口点</li>
+                    <li><span class="method-tag">set_finish_point()</span>设置结束点</li>
+                    <li><span class="method-tag">compile()</span>编译图</li>
+                </ul>
+            </div>
+
+            <div class="info-card">
+                <h3>🏗️ StateGraph 特性</h3>
+                <ul>
+                    <li><span class="method-tag">state_schema</span>定义图状态的结构</li>
+                    <li><span class="method-tag">config_schema</span>定义配置的结构</li>
+                    <li><span class="method-tag">继承关系</span>继承自Graph类</li>
+                    <li><span class="method-tag">状态更新</span>通过Reducer函数更新状态</li>
+                </ul>
+            </div>
+
+            <div class="info-card">
+                <h3>📝 代码示例</h3>
+                <div class="diagram-box">
+                    <pre>
+from langgraph.graph import StateGraph
+
+# 定义状态
+class State(TypedDict):
+    messages: list
+
+# 创建图
+graph = StateGraph(State)
+graph.add_node("chat", chat_node)
+graph.add_edge("start", "chat")
+graph.add_edge("chat", "end")
+
+# 编译并执行
+app = graph.compile()
+result = app.invoke({"messages": []})</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

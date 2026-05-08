@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReAct 案例实战</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            padding: 40px;
+        }
+        .container { max-width: 1920px; margin: 0 auto; }
+        h1 {
+            text-align: center;
+            color: #fff;
+            font-size: 48px;
+            margin-bottom: 50px;
+            font-weight: 600;
+            text-shadow: 0 0 20px rgba(100, 200, 255, 0.5);
+        }
+        .architecture-section {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        .arch-box {
+            background: rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.15);
+            min-width: 220px;
+        }
+        .arch-box h3 { color: #fff; font-size: 22px; margin-bottom: 10px; }
+        .arch-box .icon { font-size: 48px; margin-bottom: 10px; }
+        .arch-box p { color: rgba(255,255,255,0.7); font-size: 14px; }
+        .arch-box.weather { border-top: 4px solid #4facfe; }
+        .arch-box.db { border-top: 4px solid #43e97b; }
+        .arch-box.agent { border-top: 4px solid #f093fb; }
+        .arrow { color: #4facfe; font-size: 36px; align-self: center; }
+        .main-content {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+        }
+        .card {
+            background: rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+        .card h2 {
+            color: #4facfe;
+            font-size: 26px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .card h2 .icon { font-size: 32px; }
+        .code-box {
+            background: rgba(0,0,0,0.4);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        .code-box pre {
+            color: #43e97b;
+            font-family: "Courier New", monospace;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .code-box .comment { color: #888; }
+        .code-box .keyword { color: #f093fb; }
+        .feature-list { list-style: none; }
+        .feature-list li {
+            color: rgba(255,255,255,0.85);
+            font-size: 14px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .feature-list li:last-child { border-bottom: none; }
+        .bullet {
+            width: 8px;
+            height: 8px;
+            background: #4facfe;
+            border-radius: 50%;
+        }
+        .flow-diagram {
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+        .flow-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .flow-box {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+        }
+        .flow-box.user { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: #000; }
+        .flow-box.agent { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .flow-box.tool { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: #000; }
+        .flow-box.db { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .flow-arrow { color: #4facfe; font-size: 20px; }
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(79, 172, 254, 0.2) 0%, rgba(67, 233, 123, 0.2) 100%);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin-top: 30px;
+        }
+        .highlight-box p { color: #fff; font-size: 18px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ReAct 案例实战</h1>
+
+        <div class="architecture-section">
+            <div class="arch-box weather">
+                <div class="icon">🌤️</div>
+                <h3>天气 API</h3>
+                <p>OpenWeatherMap<br>实时天气数据</p>
+            </div>
+            <span class="arrow">→</span>
+            <div class="arch-box agent">
+                <div class="icon">🤖</div>
+                <h3>ReAct Agent</h3>
+                <p>create_react_agent<br>智能代理</p>
+            </div>
+            <span class="arrow">→</span>
+            <div class="arch-box db">
+                <div class="icon">💾</div>
+                <h3>MySQL 存储</h3>
+                <p>SQLAlchemy ORM<br>数据持久化</p>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="card">
+                <h2><span class="icon">🔧</span>工具定义</h2>
+                <div class="code-box">
+                    <pre>
+<span class="keyword">from</span> langchain_core.tools
+  <span class="keyword">import</span> tool
+
+<span class="keyword">@tool</span>
+<span class="keyword">def</span> get_weather(city: str) -> str:
+    <span class="comment">"""获取城市天气信息"""</span>
+    api_key = os.getenv(<span class="string">"OPENWEATHER_API_KEY"</span>)
+    <span class="comment"># 调用天气 API...</span>
+    <span class="keyword">return</span> weather_info</pre>
+                </div>
+                <ul class="feature-list">
+                    <li><span class="bullet"></span>@tool 装饰器定义工具</li>
+                    <li><span class="bullet"></span>自动生成工具 schema</li>
+                    <li><span class="bullet"></span>支持类型提示和文档</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon">🔗</span>创建 Agent</h2>
+                <div class="code-box">
+                    <pre>
+<span class="keyword">from</span> langgraph.prebuilt
+  <span class="keyword">import</span> create_react_agent
+
+agent = create_react_agent(
+    model,
+    tools=[get_weather, save_to_db]
+)
+
+<span class="comment"># 调用 Agent</span>
+result = agent.invoke({
+    "messages": [("user", query)]
+})</pre>
+                </div>
+                <ul class="feature-list">
+                    <li><span class="bullet"></span>零配置创建 ReAct Agent</li>
+                    <li><span class="bullet"></span>自动工具绑定</li>
+                    <li><span class="bullet"></span>内置循环逻辑</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon">🔄</span>执行流程</h2>
+                <div class="flow-diagram">
+                    <div class="flow-row">
+                        <div class="flow-box user">用户查询天气</div>
+                        <span class="flow-arrow">→</span>
+                        <div class="flow-box agent">Agent 推理</div>
+                        <span class="flow-arrow">→</span>
+                        <div class="flow-box tool">调用工具</div>
+                    </div>
+                    <div class="flow-row">
+                        <div class="flow-box tool">获取结果</div>
+                        <span class="flow-arrow">→</span>
+                        <div class="flow-box db">存入数据库</div>
+                        <span class="flow-arrow">→</span>
+                        <div class="flow-box agent">返回答案</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon">✨</span>关键特性</h2>
+                <ul class="feature-list">
+                    <li><span class="bullet"></span>LangSmith 追踪支持</li>
+                    <li><span class="bullet"></span>异步工具调用</li>
+                    <li><span class="bullet"></span>多工具协调</li>
+                    <li><span class="bullet"></span>错误处理和恢复</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="highlight-box">
+            <p>实战：天气查询 Agent = ReAct 循环 + 工具调用 + 数据存储</p>
+        </div>
+    </div>
+</body>
+</html>

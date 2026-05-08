@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图状态中处理消息</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            padding: 40px;
+        }
+        .container { max-width: 1920px; margin: 0 auto; }
+        h1 {
+            text-align: center;
+            color: #fff;
+            font-size: 48px;
+            margin-bottom: 50px;
+            font-weight: 600;
+            text-shadow: 0 0 20px rgba(100, 200, 255, 0.5);
+        }
+        .architecture-section {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        .arch-box {
+            background: rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.15);
+            min-width: 200px;
+        }
+        .arch-box h3 {
+            color: #fff;
+            font-size: 22px;
+            margin-bottom: 15px;
+        }
+        .arch-box .icon { font-size: 48px; margin-bottom: 10px; }
+        .arch-box p { color: rgba(255,255,255,0.7); font-size: 14px; }
+        .arrow { color: #4facfe; font-size: 36px; align-self: center; }
+        .main-content {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+        .card {
+            background: rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+        .card h2 {
+            color: #4facfe;
+            font-size: 22px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .card h2 .icon { font-size: 28px; }
+        .code-box {
+            background: rgba(0,0,0,0.4);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .code-box pre {
+            color: #43e97b;
+            font-family: "Courier New", monospace;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        .feature-list {
+            list-style: none;
+        }
+        .feature-list li {
+            color: rgba(255,255,255,0.85);
+            font-size: 13px;
+            padding: 6px 0;
+        }
+        .bullet { color: #4facfe; margin-right: 8px; }
+        .message-flow {
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        .message-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 10px 0;
+        }
+        .msg-box {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+        }
+        .msg-box.user { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: #000; }
+        .msg-box.ai { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: #000; }
+        .msg-box.system { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(79, 172, 254, 0.2) 0%, rgba(67, 233, 123, 0.2) 100%);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin-top: 30px;
+        }
+        .highlight-box p { color: #fff; font-size: 18px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>图状态中处理消息</h1>
+
+        <div class="architecture-section">
+            <div class="arch-box">
+                <div class="icon">💬</div>
+                <h3>messages 键</h3>
+                <p>存储消息列表的 State 键</p>
+            </div>
+            <span class="arrow">⟷</span>
+            <div class="arch-box">
+                <div class="icon">🔄</div>
+                <h3>Reducer 函数</h3>
+                <p>operator.add 追加消息</p>
+            </div>
+            <span class="arrow">→</span>
+            <div class="arch-box">
+                <div class="icon">🤖</div>
+                <h3>大模型处理</h3>
+                <p>接入 LLM 处理对话</p>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="card">
+                <h2><span class="icon">👤</span>HumanMessage</h2>
+                <div class="code-box">
+                    <pre>
+<span class="keyword">from</span> langchain_core.messages
+  <span class="keyword">import</span> HumanMessage
+
+HumanMessage(
+    content="用户输入内容"
+)</pre>
+                </div>
+                <ul class="feature-list">
+                    <li><span class="bullet">•</span>表示用户输入消息</li>
+                    <li><span class="bullet">•</span>存储在 messages 列表</li>
+                    <li><span class="bullet">•</span>触发 AI 响应</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon">🤖</span>AIMessage</h2>
+                <div class="code-box">
+                    <pre>
+<span class="keyword">from</span> langchain_core.messages
+  <span class="keyword">import</span> AIMessage
+
+AIMessage(content="AI响应")</pre>
+                </div>
+                <ul class="feature-list">
+                    <li><span class="bullet">•</span>表示大模型响应</li>
+                    <li><span class="bullet">•</span>由 LLM 节点生成</li>
+                    <li><span class="bullet">•</span>追加到消息历史</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon">💾</span>operator.add</h2>
+                <div class="code-box">
+                    <pre>
+<span class="keyword">from</span> typing <span class="keyword">import</span> Annotated
+<span class="keyword">import</span> operator
+
+<span class="keyword">class</span> State(TypedDict):
+    messages: Annotated[
+        list, operator.add
+    ]</pre>
+                </div>
+                <ul class="feature-list">
+                    <li><span class="bullet">•</span>消息追加而非覆盖</li>
+                    <li><span class="bullet">•</span>保留完整对话历史</li>
+                    <li><span class="bullet">•</span>适合多轮对话场景</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="message-flow">
+            <div class="message-row">
+                <div class="msg-box user">HumanMessage: 你好</div>
+                <span class="arrow" style="font-size: 20px;">→</span>
+                <div class="msg-box ai">AIMessage: 你好！有什么可以帮助你的？</div>
+                <span class="arrow" style="font-size: 20px;">→</span>
+                <div class="msg-box ai">AIMessage: 用户问了一个问题...</div>
+            </div>
+        </div>
+
+        <div class="highlight-box">
+            <p>消息处理是构建对话机器人的基础，通过 operator.add 实现消息历史累积</p>
+        </div>
+    </div>
+</body>
+</html>

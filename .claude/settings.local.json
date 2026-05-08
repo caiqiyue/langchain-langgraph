@@ -59,7 +59,22 @@
       "Bash(python -c \"import json; f=open\\(r'E:/langchain_learning/langgraph_learn/3. 单代理架构在 LangGraph 中构建复杂图的应用.ipynb','r',encoding='utf-8'\\); nb=json.load\\(f\\); [print\\(f'Cell {i}: {c[\\\\\"cell_type\\\\\"]} - {c.get\\(\\\\\"source\\\\\",\\\\\"\\\\\"\\)[:200]}'\\) for i,c in enumerate\\(nb['cells']\\)]\")",
       "Bash(python3 -c \"print\\('hello'\\)\")",
       "Bash(/c/Users/Administrator/AppData/Local/Microsoft/WindowsApps/python3.exe -c \"print\\('hello'\\)\")",
-      "Bash(python -c \"print\\('hello'\\)\")"
+      "Bash(python -c \"print\\('hello'\\)\")",
+      "Bash(python -c \"import json; nb=json.load\\(open\\('5. LangGrah 长短期记忆实现机制及检查点的使用.ipynb', encoding='utf-8'\\)\\); print\\('Total cells:', len\\(nb['cells']\\)\\); [print\\(f'{i}: {c[\\\\\"cell_type\\\\\"]} - {c.get\\(\\\\\"source\\\\\", [\\\\\"\\\\\"]\\)[0][:80] if c.get\\(\\\\\"source\\\\\"\\) else \\\\\"\\(no source\\)\\\\\"}'\\) for i,c in enumerate\\(nb['cells'][:30]\\)]\")",
+      "Bash(python -c \"import json; nb=json.load\\(open\\('5. LangGrah 长短期记忆实现机制及检查点的使用.ipynb', encoding='utf-8'\\)\\); print\\('Total cells:', len\\(nb['cells']\\)\\); [print\\(f'{i}: {c[\\\\\"cell_type\\\\\"]} - {c.get\\(\\\\\"source\\\\\", [\\\\\"\\\\\"]\\)[0][:80] if c.get\\(\\\\\"source\\\\\"\\) else \\\\\"\\(no source\\)\\\\\"}'\\) for i,c in enumerate\\(nb['cells'][30:60]\\)]\")",
+      "Bash(python -c \"import json; nb=json.load\\(open\\('5. LangGrah 长短期记忆实现机制及检查点的使用.ipynb', encoding='utf-8'\\)\\); print\\('Total cells:', len\\(nb['cells']\\)\\); [print\\(f'{i}: {c[\\\\\"cell_type\\\\\"]} - {c.get\\(\\\\\"source\\\\\", [\\\\\"\\\\\"]\\)[0][:80] if c.get\\(\\\\\"source\\\\\"\\) else \\\\\"\\(no source\\)\\\\\"}'\\) for i,c in enumerate\\(nb['cells'][60:90]\\)]\")",
+      "Bash(mv \"01_2_标准图结构中如何添加_py.py\" \"01_初始化LLM.py\")",
+      "Bash(mv \"02_2_标准图结构中如何添加_py.py\" \"02_完整HIL图构建.py\")",
+      "Bash(mv \"03_2_标准图结构中如何添加_py.py\" \"03_触发断点测试.py\")",
+      "Bash(mv \"04_2_标准图结构中如何添加_py.py\" \"04_获取当前状态.py\")",
+      "Bash(mv \"05_2_标准图结构中如何添加_py.py\" \"05_更新用户审批状态.py\")",
+      "Bash(mv \"第1阶段_State状态模式定义\" \"第一节课\")",
+      "Bash(mv \"第2阶段_Reducer函数机制\" \"第二节课\")",
+      "Bash(mv \"第3阶段_图状态中处理消息\" \"第三节课\")",
+      "Bash(mv \"第4阶段_MessageGraph源码解析\" \"第四节课\")",
+      "Bash(mv \"第5阶段_LangSmith基础使用入门\" \"第五节课\")",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); [print\\(c['source'][:500] if 'source' in c else ''\\) for c in d.get\\('cells',[]\\) if c.get\\('cell_type'\\)=='markdown']\")",
+      "Bash(xargs wc -l)"
     ],
     "additionalDirectories": [
       "E:\\langchain_learning\\第四节课棵",

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MessageGraph 源码解析</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            padding: 40px;
+        }
+        .container { max-width: 1920px; margin: 0 auto; }
+        h1 {
+            text-align: center;
+            color: #fff;
+            font-size: 48px;
+            margin-bottom: 50px;
+            font-weight: 600;
+            text-shadow: 0 0 20px rgba(100, 200, 255, 0.5);
+        }
+        .main-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 40px;
+        }
+        .card {
+            background: rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+        }
+        .card h2 {
+            color: #4facfe;
+            font-size: 26px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .card h2 .icon { font-size: 32px; }
+        .code-box {
+            background: rgba(0,0,0,0.4);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        .code-box pre {
+            color: #43e97b;
+            font-family: "Courier New", monospace;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .code-box .comment { color: #888; }
+        .code-box .keyword { color: #f093fb; }
+        .inheritance-diagram {
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .class-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+        }
+        .class-box {
+            padding: 15px 30px;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .class-box.parent { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .class-box.child { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: #000; }
+        .arrow { color: #4facfe; font-size: 28px; }
+        .feature-list {
+            list-style: none;
+            margin-top: 15px;
+        }
+        .feature-list li {
+            color: rgba(255,255,255,0.85);
+            font-size: 14px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .feature-list li:last-child { border-bottom: none; }
+        .bullet {
+            width: 8px;
+            height: 8px;
+            background: #4facfe;
+            border-radius: 50%;
+        }
+        .comparison-table {
+            width: 100%;
+            margin-top: 15px;
+        }
+        .comparison-table th, .comparison-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .comparison-table th {
+            color: #4facfe;
+            font-size: 14px;
+        }
+        .comparison-table td {
+            color: rgba(255,255,255,0.85);
+            font-size: 13px;
+        }
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(240, 147, 251, 0.2) 0%, rgba(67, 233, 123, 0.2) 100%);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin-top: 30px;
+        }
+        .highlight-box p { color: #fff; font-size: 18px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>MessageGraph 源码解析</h1>
+
+        <div class="inheritance-diagram">
+            <div class="class-row">
+                <div class="class-box parent">Graph 基类</div>
+                <span class="arrow">→</span>
+                <div class="class-box parent">StateGraph</div>
+                <span class="arrow">→</span>
+                <div class="class-box child">MessageGraph</div>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <div class="card">
+                <h2><span class="icon">📝</span>MessageGraph 定义</h2>
+                <div class="code-box">
+                    <pre>
+<span class="keyword">from</span> langgraph.graph
+  <span class="keyword">import</span> MessageGraph
+
+<span class="comment"># 专门用于以消息为中心的图</span>
+graph = MessageGraph()
+
+<span class="comment"># 添加消息节点</span>
+graph.add_node("chat", chat_node)
+graph.add_edge("start", "chat")
+                    </pre>
+                </div>
+                <ul class="feature-list">
+                    <li><span class="bullet"></span>继承自 StateGraph</li>
+                    <li><span class="bullet"></span>专门处理消息流</li>
+                    <li><span class="bullet"></span>默认使用 add_messages reducer</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon">⚡</span>add_messages 函数</h2>
+                <div class="code-box">
+                    <pre>
+<span class="keyword">from</span> langgraph.graph.messages
+  <span class="keyword">import</span> add_messages
+
+<span class="comment"># 预构建的 Reducer 函数</span>
+<span class="comment"># - 跟踪消息 ID</span>
+<span class="comment"># - 追加新消息</span>
+<span class="comment"># - 可覆盖现有消息</span>
+                    </pre>
+                </div>
+                <ul class="feature-list">
+                    <li><span class="bullet"></span>LangGraph 预构建的 reducer</li>
+                    <li><span class="bullet"></span>处理消息 ID 和内容</li>
+                    <li><span class="bullet"></span>支持消息更新和覆盖</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon">🔄</span>与 StateGraph 对比</h2>
+                <table class="comparison-table">
+                    <tr>
+                        <th>特性</th>
+                        <th>MessageGraph</th>
+                        <th>StateGraph</th>
+                    </tr>
+                    <tr>
+                        <td>状态结构</td>
+                        <td>固定 messages 列表</td>
+                        <td>可自定义</td>
+                    </tr>
+                    <tr>
+                        <td>Reducer</td>
+                        <td>add_messages</td>
+                        <td>可自定义</td>
+                    </tr>
+                    <tr>
+                        <td>适用场景</td>
+                        <td>对话系统</td>
+                        <td>复杂工作流</td>
+                    </tr>
+                    <tr>
+                        <td>灵活性</td>
+                        <td>中等</td>
+                        <td>高</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon">💡</span>使用场景</h2>
+                <ul class="feature-list">
+                    <li><span class="bullet"></span>聊天机器人开发</li>
+                    <li><span class="bullet"></span>多轮对话系统</li>
+                    <li><span class="bullet"></span>消息历史管理</li>
+                    <li><span class="bullet"></span>对话式 AI 应用</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="highlight-box">
+            <p>MessageGraph = 以消息为中心的 StateGraph，适合对话类应用</p>
+        </div>
+    </div>
+</body>
+</html>

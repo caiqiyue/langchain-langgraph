@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Router Agent 结构图</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .node { padding: 10px 20px; border: 2px solid #333; border-radius: 8px; margin: 10px; display: inline-block; }
+        .arrow { margin: 0 15px; color: #666; }
+        .container { text-align: center; margin: 20px 0; }
+        img { max-width: 100%; height: auto; }
+    </style>
+</head>
+<body>
+    <h2 style="text-align:center;">Router Agent 条件路由结构</h2>
+
+    <div class="container">
+        <img src="https://muyu001.oss-cn-beijing.aliyuncs.com/img/20241024002.png" alt="Router Agent 结构图">
+    </div>
+
+    <h3>条件边 flow</h3>
+    <pre>
+    START
+       │
+       ▼
+    ┌─────────────────┐
+    │  chat_with_model │  (结构化输出)
+    └────────┬────────┘
+             │
+             ▼
+    ┌─────────────────┐
+    │ Router Function │  (isinstance 判断)
+    └────────┬────────┘
+             │
+       ┌─────┴─────┐
+       ▼           ▼
+   ┌────────┐  ┌────────┐
+   │insert_db│  │final_  │
+   │ (UserInfo)│ │answer  │
+   └────┬────┘  │(Conv..)│
+        │        └───┬───┘
+        ▼            │
+       END            ▼
+                   END
+    </pre>
+
+    <h3>说明</h3>
+    <ul>
+        <li><strong>chat_with_model</strong>: 使用 with_structured_output 生成结构化输出</li>
+        <li><strong>Router Function</strong>: 通过 isinstance 判断输出类型，决定路由分支</li>
+        <li><strong>insert_db</strong>: 当输出为 UserInfo 时，执行数据库插入</li>
+        <li><strong>final_answer</strong>: 当输出为 ConversationalResponse 时，直接生成响应</li>
+    </ul>
+</body>
+</html>

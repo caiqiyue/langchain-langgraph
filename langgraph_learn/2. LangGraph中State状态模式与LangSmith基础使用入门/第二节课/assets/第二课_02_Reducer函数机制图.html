@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reducer 函数机制</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            padding: 40px;
+        }
+        .container { max-width: 1920px; margin: 0 auto; }
+        h1 {
+            text-align: center;
+            color: #fff;
+            font-size: 48px;
+            margin-bottom: 50px;
+            font-weight: 600;
+            text-shadow: 0 0 20px rgba(100, 200, 255, 0.5);
+        }
+        .main-content {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 40px;
+        }
+        .card {
+            background: rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+        }
+        .card h2 {
+            color: #4facfe;
+            font-size: 26px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .card h2 .icon { font-size: 32px; }
+        .code-box {
+            background: rgba(0,0,0,0.4);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        .code-box pre {
+            color: #43e97b;
+            font-family: "Courier New", monospace;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .code-box .comment { color: #888; }
+        .code-box .keyword { color: #f093fb; }
+        .flow-diagram {
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .flow-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin: 15px 0;
+        }
+        .flow-box {
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+        }
+        .flow-box.state { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .flow-box.action { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: #000; }
+        .flow-box.reducer { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: #000; }
+        .flow-arrow { color: #4facfe; font-size: 24px; }
+        .feature-list {
+            list-style: none;
+            margin-top: 15px;
+        }
+        .feature-list li {
+            color: rgba(255,255,255,0.85);
+            font-size: 14px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .feature-list li:last-child { border-bottom: none; }
+        .bullet {
+            width: 8px;
+            height: 8px;
+            background: #4facfe;
+            border-radius: 50%;
+        }
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .compare-item {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 15px;
+        }
+        .compare-item h4 {
+            color: #4facfe;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        .compare-item p {
+            color: rgba(255,255,255,0.7);
+            font-size: 13px;
+        }
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(240, 147, 251, 0.2) 0%, rgba(67, 233, 123, 0.2) 100%);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin-top: 30px;
+        }
+        .highlight-box p {
+            color: #fff;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Reducer 函数机制</h1>
+
+        <div class="main-content">
+            <div class="card">
+                <h2><span class="icon">🔧</span>Reducer 原理</h2>
+                <div class="flow-diagram">
+                    <div class="flow-row">
+                        <div class="flow-box state">当前状态</div>
+                        <span class="flow-arrow">+</span>
+                        <div class="flow-box action">新操作</div>
+                        <span class="flow-arrow">→</span>
+                        <div class="flow-box reducer">Reducer 函数</div>
+                        <span class="flow-arrow">→</span>
+                        <div class="flow-box state">新状态</div>
+                    </div>
+                </div>
+                <ul class="feature-list">
+                    <li><span class="bullet"></span>根据输入生成新的状态</li>
+                    <li><span class="bullet"></span>定义状态的更新逻辑</li>
+                    <li><span class="bullet"></span>控制状态的合并方式</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon">🏷️</span>Annotated 与 operator.add</h2>
+                <div class="code-box">
+                    <pre>
+<span class="comment"># 使用 Annotated 定义 Reducer</span>
+<span class="keyword">from</span> typing <span class="keyword">import</span> Annotated
+<span class="keyword">import</span> operator
+
+<span class="keyword">class</span> State(TypedDict):
+    messages: Annotated[list, operator.add]
+    count: int
+                    </pre>
+                </div>
+                <div class="comparison-grid">
+                    <div class="compare-item">
+                        <h4>默认行为</h4>
+                        <p>相同 key 被新值覆盖</p>
+                    </div>
+                    <div class="compare-item">
+                        <h4>operator.add</h4>
+                        <p>列表追加模式，新值添加到现有列表</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon">📝</span>代码示例</h2>
+                <div class="code-box">
+                    <pre>
+<span class="comment"># 默认覆盖更新</span>
+state = {"messages": ["a"]}
+new_state = {"messages": ["b"]}
+<span class="comment"># 结果: {"messages": ["b"]}</span>
+
+<span class="comment"># 使用 operator.add</span>
+<span class="keyword">from</span> typing <span class="keyword">import</span> Annotated
+<span class="keyword">import</span> operator
+
+<span class="keyword">class</span> State(TypedDict):
+    messages: Annotated[list, operator.add]
+
+<span class="comment"># reducer: lambda old, new: old + new</span>
+<span class="comment"># 结果: {"messages": ["a", "b"]}</span>
+                    </pre>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2><span class="icon">⚡</span>核心优势</h2>
+                <ul class="feature-list">
+                    <li><span class="bullet"></span>灵活的状态更新策略</li>
+                    <li><span class="bullet"></span>支持列表、计数器等多种类型</li>
+                    <li><span class="bullet"></span>可自定义合并逻辑</li>
+                    <li><span class="bullet"></span>适合消息历史等场景</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="highlight-box">
+            <p>Reducer = 状态更新策略，通过 Annotated 指定自定义合并函数</p>
+        </div>
+    </div>
+</body>
+</html>

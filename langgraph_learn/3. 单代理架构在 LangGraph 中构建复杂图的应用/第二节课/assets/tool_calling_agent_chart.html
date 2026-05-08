@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Tool Calling Agent 结构图</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .node { padding: 10px 20px; border: 2px solid #333; border-radius: 8px; margin: 10px; display: inline-block; }
+        .arrow { margin: 0 15px; color: #666; }
+        .container { text-align: center; margin: 20px 0; }
+        img { max-width: 100%; height: auto; }
+    </style>
+</head>
+<body>
+    <h2 style="text-align:center;">Tool Calling Agent 工具调用结构</h2>
+
+    <div class="container">
+        <img src="https://muyu001.oss-cn-beijing.aliyuncs.com/img/image-20241024112245580.png" alt="Tool Calling Agent 结构图">
+    </div>
+
+    <h3>工具调用 flow</h3>
+    <pre>
+    用户输入
+       │
+       ▼
+    ┌─────────────────┐
+    │ chat_with_model  │  (LLM + bind_tools)
+    └────────┬────────┘
+             │
+             ▼
+    ┌─────────────────┐
+    │  tool_calls?    │  (exists_function_calling)
+    └────────┬────────┘
+             │
+       ┌─────┴─────┐
+       ▼           ▼
+      YES          NO
+       │           │
+       ▼           ▼
+    ┌──────────┐  ┌──────────┐
+    │execute_  │  │final_    │
+    │function  │  │answer    │
+    └────┬─────┘  └────┬─────┘
+         │              │
+         └──────┬───────┘
+                ▼
+         ┌────────────┐
+         │  natural_   │
+         │  response  │
+         └─────┬──────┘
+               │
+               ▼
+             END
+    </pre>
+
+    <h3>ToolNode 工作原理</h3>
+    <pre>
+    tools_by_name = {tool.name: tool for tool in tools}
+
+    def tool_node(state: dict):
+        result = []
+        for tool_call in state["messages"][-1].tool_calls:
+            tool = tools_by_name[tool_call["name"]]
+            result.append(tool.invoke(tool_call["args"]))
+        return {"messages": result}
+    </pre>
+
+    <h3>说明</h3>
+    <ul>
+        <li><strong>chat_with_model</strong>: 大模型根据输入决定是否调用工具</li>
+        <li><strong>exists_function_calling</strong>: 判断是否存在 tool_calls</li>
+        <li><strong>execute_function</strong>: 执行 ToolNode 进行工具调用</li>
+        <li><strong>natural_response</strong>: 结合工具结果生成最终响应</li>
+    </ul>
+</body>
+</html>

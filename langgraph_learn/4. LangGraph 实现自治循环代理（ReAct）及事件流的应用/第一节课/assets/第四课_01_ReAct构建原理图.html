@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReAct 构建原理</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            padding: 40px;
+        }
+        .container { max-width: 1920px; margin: 0 auto; }
+        h1 {
+            text-align: center;
+            color: #fff;
+            font-size: 48px;
+            margin-bottom: 50px;
+            font-weight: 600;
+            text-shadow: 0 0 20px rgba(100, 200, 255, 0.5);
+        }
+        .react-cycle {
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+        .cycle-title {
+            color: #4facfe;
+            font-size: 32px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .cycle-diagram {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .cycle-step {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            min-width: 180px;
+        }
+        .cycle-step.think { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: #000; }
+        .cycle-step.act { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: #000; }
+        .cycle-step.observe { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .cycle-step h3 { font-size: 22px; margin-bottom: 10px; }
+        .cycle-step p { font-size: 14px; opacity: 0.8; }
+        .arrow { color: #fff; font-size: 36px; }
+        .main-content {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 30px;
+        }
+        .card {
+            background: rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+        .card h2 {
+            color: #4facfe;
+            font-size: 26px;
+            margin-bottom: 20px;
+        }
+        .feature-list { list-style: none; }
+        .feature-list li {
+            color: rgba(255,255,255,0.85);
+            font-size: 15px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .feature-list li:last-child { border-bottom: none; }
+        .bullet {
+            width: 10px;
+            height: 10px;
+            background: linear-gradient(135deg, #4facfe 0%, #43e97b 100%);
+            border-radius: 50%;
+        }
+        .comparison-table {
+            width: 100%;
+            margin-top: 15px;
+        }
+        .comparison-table th, .comparison-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .comparison-table th { color: #4facfe; font-size: 14px; }
+        .comparison-table td { color: rgba(255,255,255,0.85); font-size: 13px; }
+        .code-box {
+            background: rgba(0,0,0,0.4);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+        .code-box pre {
+            color: #43e97b;
+            font-family: "Courier New", monospace;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(79, 172, 254, 0.2) 0%, rgba(67, 233, 123, 0.2) 100%);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin-top: 30px;
+        }
+        .highlight-box p { color: #fff; font-size: 18px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ReAct 构建原理</h1>
+
+        <div class="react-cycle">
+            <div class="cycle-title">ReAct 循环机制</div>
+            <div class="cycle-diagram">
+                <div class="cycle-step">
+                    <h3>🤔 Think</h3>
+                    <p>分析问题<br>制定计划</p>
+                </div>
+                <span class="arrow">→</span>
+                <div class="cycle-step act">
+                    <h3>🎬 Act</h3>
+                    <p>调用工具<br>执行操作</p>
+                </div>
+                <span class="arrow">→</span>
+                <div class="cycle-step observe">
+                    <h3>👁️ Observe</h3>
+                    <p>观察结果<br>获取反馈</p>
+                </div>
+                <span class="arrow">→</span>
+                <div class="cycle-step">
+                    <h3>🔄 Loop</h3>
+                    <p>循环判断<br>决定终止</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="card">
+                <h2>ReAct vs Tool Calling</h2>
+                <table class="comparison-table">
+                    <tr>
+                        <th>特性</th>
+                        <th>ReAct Agent</th>
+                        <th>Tool Calling Agent</th>
+                    </tr>
+                    <tr>
+                        <td>决策方式</td>
+                        <td>Reasoning + Action 交替</td>
+                        <td>Function Calling 直接</td>
+                    </tr>
+                    <tr>
+                        <td>循环支持</td>
+                        <td>内置循环机制</td>
+                        <td>通常单轮</td>
+                    </tr>
+                    <tr>
+                        <td>灵活性</td>
+                        <td>高（可自定义循环）</td>
+                        <td>中（结构固定）</td>
+                    </tr>
+                    <tr>
+                        <td>适用场景</td>
+                        <td>复杂推理任务</td>
+                        <td>结构化工具调用</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="card">
+                <h2>核心概念</h2>
+                <ul class="feature-list">
+                    <li><span class="bullet"></span>Reasoning：推理思考，理解当前状态</li>
+                    <li><span class="bullet"></span>Action：执行动作，调用工具</li>
+                    <li><span class="bullet"></span>Observation：观察结果，处理响应</li>
+                    <li><span class="bullet"></span>Loop：循环控制，决定是否继续</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2>代码示例</h2>
+                <div class="code-box">
+                    <pre>
+from langgraph.prebuilt
+  <span style="color:#888;">import create_react_agent</span>
+
+agent = create_react_agent(
+    model,
+    tools=[search, weather]
+)
+
+result = agent.invoke({
+    "messages": [("user", query)]
+})</pre>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>LangGraph 预置结构</h2>
+                <ul class="feature-list">
+                    <li><span class="bullet"></span>create_react_agent：快捷创建 ReAct Agent</li>
+                    <li><span class="bullet"></span>内置状态管理</li>
+                    <li><span class="bullet"></span>自动工具绑定</li>
+                    <li><span class="bullet"></span>循环终止条件</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="highlight-box">
+            <p>ReAct = 推理与执行交替的循环 Agent，适用于复杂任务</p>
+        </div>
+    </div>
+</body>
+</html>
