@@ -20,14 +20,17 @@
 
 import os
 import gradio as gr
+from pathlib import Path
 from dotenv import load_dotenv
 
-load_dotenv(override=True)
+# 查找项目根目录的 .env 文件
+project_root = Path(__file__).resolve().parents[3]
+env_path = project_root / ".env"
+load_dotenv(env_path, override=True)
 
 # 设置 DashScope 配置
-# API Key 从环境变量读取
-# os.environ["DASHSCOPE_API_KEY"] = os.getenv("DASHSCOPE_API_KEY")
-# os.environ["DASHSCOPE_BASE_URL"] = os.getenv("DASHSCOPE_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1")
+os.environ["DASHSCOPE_API_KEY"] = os.getenv("DASHSCOPE_API_KEY", "")
+os.environ["DASHSCOPE_BASE_URL"] = os.getenv("DASHSCOPE_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1")
 
 from langchain_community.chat_models.tongyi import ChatTongyi
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage

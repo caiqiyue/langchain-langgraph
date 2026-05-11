@@ -13,12 +13,17 @@
 """
 
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 
-load_dotenv(override=True)
-# API Key 从环境变量读取
-# os.environ["DASHSCOPE_API_KEY"] = os.getenv("DASHSCOPE_API_KEY")
-# os.environ["DASHSCOPE_BASE_URL"] = os.getenv("DASHSCOPE_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1")
+# 查找项目根目录的 .env 文件
+project_root = Path(__file__).resolve().parents[3]
+env_path = project_root / ".env"
+load_dotenv(env_path, override=True)
+
+# 设置环境变量
+os.environ["DASHSCOPE_API_KEY"] = os.getenv("DASHSCOPE_API_KEY", "")
+os.environ["DASHSCOPE_BASE_URL"] = os.getenv("DASHSCOPE_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1")
 
 print("=" * 50)
 print("案例 5: 工具定义 @tool 装饰器")
@@ -137,15 +142,29 @@ print("\n" + "-" * 30)
 print("批量调用工具:")
 print("-" * 30)
 
-# 批量调用
-tools_batch_result = [get_weather, calculate, get_time].batch([
+# 批量调用 - 在单个工具上使用 batch
+print("get_weather 批量查询多个城市:")
+weather_results = get_weather.batch([
     {"city": "上海"},
-    {"expression": "2 ** 10"},
-    {}
+    {"city": "北京"},
+    {"city": "深圳"}
 ])
+for i, result in enumerate(weather_results):
+    print(f"  结果 {i+1}: {result}")
 
-for i, result in enumerate(tools_batch_result):
-    print(f"  工具 {i+1} 结果: {result}")
+print("\ncalculate 批量计算多个表达式:")
+calc_results = calculate.batch([
+    {"expression": "2 ** 10"},
+    {"expression": "123 * 456"},
+    {"expression": "1000 - 1"}
+])
+for i, result in enumerate(calc_results):
+    print(f"  结果 {i+1}: {result}")
+
+print("\nget_time 批量获取时间:")
+time_results = get_time.batch([{}, {}, {}])
+for i, result in enumerate(time_results):
+    print(f"  结果 {i+1}: {result}")
 
 # ============================================================
 # 【补充】@tool 装饰器的底层原理

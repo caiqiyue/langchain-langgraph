@@ -13,14 +13,17 @@
 """
 
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 
-load_dotenv(override=True)
+# 查找项目根目录的 .env 文件
+project_root = Path(__file__).resolve().parents[3]
+env_path = project_root / ".env"
+load_dotenv(env_path, override=True)
 
 # 设置环境变量
-# API Key 从环境变量读取
-# os.environ["DASHSCOPE_API_KEY"] = os.getenv("DASHSCOPE_API_KEY")
-# os.environ["DASHSCOPE_BASE_URL"] = os.getenv("DASHSCOPE_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1")
+os.environ["DASHSCOPE_API_KEY"] = os.getenv("DASHSCOPE_API_KEY", "")
+os.environ["DASHSCOPE_BASE_URL"] = os.getenv("DASHSCOPE_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1")
 
 print("=" * 50)
 print("案例 2: init_chat_model 统一接口")

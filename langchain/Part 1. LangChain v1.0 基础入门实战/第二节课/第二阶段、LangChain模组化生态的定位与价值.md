@@ -4,7 +4,7 @@
 
 ## 2.1 LangChain 1.0 核心依赖包及作用
 
-![LangChain模块依赖关系图](../assets/第二课_01_模块依赖关系图.html)
+![LangChain模块依赖关系图](../assets/第二课_01_模块依赖关系图.png)
 
 **图解说明**：LangChain 1.0 模块依赖层次 — langchain-core（核心抽象）→ langchain（主包）→ langchain-community（第三方集成）→ 厂商包（openai/deepseek/ollama）→ langchain-classic（兼容旧版）
 
@@ -185,7 +185,7 @@ print(result.content)
 
 &emsp;&emsp;**与**`langchain-community`**的区别**：
 
-![厂商包vs社区包对比图](../assets/第二课_02_厂商包vs社区包对比图.html)
+![厂商包vs社区包对比图](../assets/第二课_02_厂商包vs社区包对比图.png)
 
 **图解说明**：langchain-openai（官方厂商包）vs langchain-community（社区包）— 官方包更新快、功能全、推荐用于生产环境；社区包适合开发验证
 
